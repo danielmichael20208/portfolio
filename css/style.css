@@ -530,3 +530,50 @@ footer p, footer span, footer a {
 .cyan-glow {
   box-shadow:0 0 35px rgba(250,204,21,.45) !important;
 }
+
+/* ======== SIEM Dashboard ======== */
+
+.siem-card {
+  background: linear-gradient(180deg,#020617,#000000);
+  border: 1px solid rgba(250,204,21,.35);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 25px;
+  color: #fde047;
+  box-shadow: 0 0 25px rgba(250,204,21,.15);
+}
+
+.chart-card canvas {
+  width: 100%;
+  height: 260px;
+}
+
+.chart-controls {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+#alert-list {
+  list-style: none;
+  padding-left: 0;
+  color: #fff;
+}
+
+#alert-list li {
+  margin-bottom: 4px;
+}
+
+#security-score {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 10px 0;
+}
+
+.badge {
+  background: var(--gold);
+  color: #020617;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+}
