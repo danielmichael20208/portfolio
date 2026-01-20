@@ -1,27 +1,65 @@
 [
   {
-    "timestamp": "2026-01-13T10:01:02Z",
-    "source": "door",
-    "component": "CyberDoor",
-    "level": "ACCESS",
-    "event_type": "ACCESS_DENIED",
-    "message": "PIN entry denied.",
-    "context": {
-      "fail_count": 2,
-      "max_failures": 3
-    }
+    "timestamp": "2026-01-13T10:12:44Z",
+    "source": "web",
+    "level": "INFO",
+    "event_type": "system_start",
+    "message": "SIEM web interface initialized"
   },
   {
-    "timestamp": "2026-01-13T10:04:03Z",
-    "source": "scan",
-    "component": "PortScanner",
-    "level": "OPEN",
-    "event_type": "PORT_OPEN",
-    "message": "Port 22 (SSH) is open.",
-    "context": {
-      "target": "127.0.0.1",
-      "port": 22,
-      "service": "SSH"
-    }
+    "timestamp": "2026-01-13T10:12:45Z",
+    "source": "password",
+    "level": "INFO",
+    "event_type": "check",
+    "message": "Password analyzer script registered as available"
+  },
+  {
+    "timestamp": "2026-01-13T10:12:46Z",
+    "source": "scanner",
+    "level": "INFO",
+    "event_type": "check",
+    "message": "Port scanner tool registered as available"
+  },
+  {
+    "timestamp": "2026-01-13T10:13:12Z",
+    "source": "door",
+    "level": "WARN",
+    "event_type": "failed_pin_attempt",
+    "message": "Incorrect PIN entered (attempt 1 of 3)"
+  },
+  {
+    "timestamp": "2026-01-13T10:13:17Z",
+    "source": "door",
+    "level": "WARN",
+    "event_type": "failed_pin_attempt",
+    "message": "Incorrect PIN entered (attempt 2 of 3)"
+  },
+  {
+    "timestamp": "2026-01-13T10:13:22Z",
+    "source": "door",
+    "level": "ALERT",
+    "event_type": "lockdown_triggered",
+    "message": "Lockdown initiated after 3 failed PIN attempts"
+  },
+  {
+    "timestamp": "2026-01-13T10:14:05Z",
+    "source": "password",
+    "level": "INFO",
+    "event_type": "analysis",
+    "message": "Password 'Cyber@2026' rated as STRONG"
+  },
+  {
+    "timestamp": "2026-01-13T10:14:27Z",
+    "source": "scanner",
+    "level": "INFO",
+    "event_type": "scan_result",
+    "message": "3 open ports found (22, 80, 443)"
+  },
+  {
+    "timestamp": "2026-01-13T10:15:40Z",
+    "source": "web",
+    "level": "INFO",
+    "event_type": "user_action",
+    "message": "User ran terminal command 'logs'"
   }
 ]
