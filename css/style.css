@@ -577,3 +577,51 @@ footer p, footer span, footer a {
   border-radius: 8px;
   font-weight: 700;
 }
+
+.roadmap-timeline {
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+
+.timeline-item {
+  background:rgba(250,204,21,.18);
+  border:1px solid rgba(250,204,21,.4);
+  padding:10px 18px;
+  border-radius:10px;
+  font-weight:600;
+}
+
+.track-card {
+  background:rgba(0,0,0,.6);
+  border:1px solid rgba(250,204,21,.35);
+  border-radius:12px;
+  padding:20px;
+  box-shadow:0 0 15px rgba(250,204,21,.18);
+  text-align:left;
+}
+
+.badge-wall {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+  margin-top:20px;
+}
+
+.badge-provider {
+  background:var(--gold);
+  color:#020617;
+  border-radius:8px;
+  font-weight:700;
+  padding:8px 14px;
+}
+
+.tier-card {
+  background:rgba(0,0,0,.65);
+  border:1px solid rgba(250,204,21,.35);
+  border-radius:14px;
+  padding:22px;
+  text-align:left;
+  box-shadow:0 0 20px rgba(250,204,21,.15);
+}
