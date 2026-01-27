@@ -625,3 +625,59 @@ footer p, footer span, footer a {
   text-align:left;
   box-shadow:0 0 20px rgba(250,204,21,.15);
 }
+
+/* === SIEM PANELS === */
+.siem-card {
+  background: linear-gradient(180deg, #0b0b0d, #000000);
+  border: 1px solid rgba(250,204,21,0.45);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 28px;
+  box-shadow: 0 0 28px rgba(250,204,21,0.20);
+  color: #f8f8f8;
+}
+
+.siem-card h2, .siem-card h3 {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* === BADGE LEVELS === */
+.badge-low {
+  background: #22c55e;
+}
+.badge-medium {
+  background: #eab308;
+  color: #020617;
+}
+.badge-high {
+  background: #dc2626;
+}
+.badge-critical {
+  background: #7f1d1d;
+}
+
+/* === SIEM LIST === */
+.siem-list {
+  text-align: left;
+  list-style: none;
+  padding-left: 0;
+}
+
+.siem-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(250,204,21,0.18);
+  font-family: monospace;
+}
+
+/* === CHARTS === */
+.chart-card canvas {
+  background: #000000;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+/* === CHART GRIDLINE COLORS === */
+.chart-grid {
+  color: rgba(250,204,21,0.3);
+}
