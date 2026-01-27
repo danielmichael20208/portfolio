@@ -37,6 +37,19 @@
 
 <section class="container" style="padding:40px 0;">
 
+<div class="siem-card mb-4 text-center">
+  <h3>Live Data Controls</h3>
+  <p style="opacity:0.8">Auto-refresh incoming security events</p>
+
+  <div style="margin-top:10px;">
+    <label style="font-weight:600; margin-right:8px;">Auto Refresh:</label>
+    <input type="checkbox" id="auto-refresh-toggle" checked>
+    <span id="refresh-status" style="margin-left:6px; color:var(--gold)">ON</span>
+  </div>
+
+  <button id="manual-refresh" class="btn-main mt-3">Manual Refresh</button>
+</div>
+  
   <!-- Security Score + Risk -->
   <div class="siem-card mb-4 text-center">
     <h3>Security Score</h3>
