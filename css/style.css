@@ -681,3 +681,12 @@ footer p, footer span, footer a {
 .chart-grid {
   color: rgba(250,204,21,0.3);
 }
+
+.siem-card {
+  background: #0b0b0d;
+  border: 1px solid rgba(250,204,21,.45);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 28px;
+  box-shadow: 0 0 28px rgba(250,204,21,.20);
+}
