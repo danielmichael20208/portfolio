@@ -41,26 +41,103 @@ async function renderSIEM() {
   if (window.sourceChartObj) window.sourceChartObj.destroy();
   if (window.timelineChartObj) window.timelineChartObj.destroy();
 
-  // === Severity Chart ===
-  window.levelChartObj = new Chart(levelChart, {
-    type:"bar",
-    data:{ labels:Object.keys(levelCounts), datasets:[{ data:Object.values(levelCounts), backgroundColor:"#facc15"}] },
-    options:{ plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:"#facc15"}}, y:{ticks:{color:"#facc15"}}}}
-  });
+ // === Dark Gold Theme Preset ===
+const DARK_GOLD = {
+  text: "#f8f8f8",
+  gold: "#facc15",
+  grid: "rgba(250,204,21,0.25)"
+};
 
-  // === Source Chart ===
-  window.sourceChartObj = new Chart(sourceChart, {
-    type:"pie",
-    data:{ labels:Object.keys(sourceCounts), datasets:[{ data:Object.values(sourceCounts), backgroundColor:["#facc15","#d4aa00","#aa8800","#775500"]}]}
-  });
+// === Severity Chart (Bar) ===
+window.levelChartObj = new Chart(levelChart, {
+  type: "bar",
+  data: {
+    labels: Object.keys(levelCounts),
+    datasets: [{
+      data: Object.values(levelCounts),
+      backgroundColor: DARK_GOLD.gold
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        bodyColor: DARK_GOLD.text,
+        titleColor: DARK_GOLD.gold
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: DARK_GOLD.text },
+        grid: { color: DARK_GOLD.grid }
+      },
+      y: {
+        ticks: { color: DARK_GOLD.text },
+        grid: { color: DARK_GOLD.grid }
+      }
+    }
+  }
+});
 
-  // === Timeline ===
-  const keys = Object.keys(timelineCounts).sort();
-  window.timelineChartObj = new Chart(timelineChart,{
-    type:"line",
-    data:{ labels:keys, datasets:[{ data:keys.map(k=>timelineCounts[k]), borderColor:"#facc15", fill:false }]}
-  });
-}
+// === Source Chart (Pie) ===
+window.sourceChartObj = new Chart(sourceChart, {
+  type: "pie",
+  data: {
+    labels: Object.keys(sourceCounts),
+    datasets: [{
+      data: Object.values(sourceCounts),
+      backgroundColor: [
+        DARK_GOLD.gold,
+        "#d4b72c",
+        "#b3951f",
+        "#8e7419"
+      ]
+    }]
+  },
+  options: {
+    plugins: {
+      legend: {
+        labels: { color: DARK_GOLD.text }
+      }
+    }
+  }
+});
+
+// === Timeline Chart (Line) ===
+const keys = Object.keys(timelineCounts).sort();
+window.timelineChartObj = new Chart(timelineChart, {
+  type: "line",
+  data: {
+    labels: keys,
+    datasets: [{
+      data: keys.map(k => timelineCounts[k]),
+      borderColor: DARK_GOLD.gold,
+      pointBackgroundColor: DARK_GOLD.gold,
+      borderWidth: 2,
+      tension: 0.25,
+      fill: false
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        bodyColor: DARK_GOLD.text,
+        titleColor: DARK_GOLD.gold
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: DARK_GOLD.text },
+        grid: { color: DARK_GOLD.grid }
+      },
+      y: {
+        ticks: { color: DARK_GOLD.text },
+        grid: { color: DARK_GOLD.grid }
+      }
+    }
+  }
+});
 
 // === AUTO REFRESH SYSTEM ===
 function startAutoRefresh() {
