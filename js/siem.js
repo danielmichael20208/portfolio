@@ -1,8 +1,12 @@
-(async function() {
+let autoRefresh = true;
+let refreshInterval = null;
+
+// === MAIN RENDER FUNCTION ===
+async function renderSIEM() {
   const res = await fetch("data/logs_web.json?" + Date.now());
   const events = await res.json();
 
-  // === Security Score Calculation ===
+  // === Security Score ===
   const weights = { INFO:1, WARN:3, ALERT:6 };
   let total = 0;
   events.forEach(e => total += weights[e.level] || 1);
@@ -16,13 +20,14 @@
 
   // === Alerts List ===
   const alertList = document.getElementById("alert-list");
+  alertList.innerHTML = "";
   events.filter(e => e.level !== "INFO").slice(-5).reverse().forEach(e => {
     const li = document.createElement("li");
-    li.textContent = `[${e.level}] ${e.message}`;
+    li.innerHTML = `<strong>[${e.level}]</strong> ${e.message}`;
     alertList.appendChild(li);
   });
 
-  // === Aggregate Charts ===
+  // === Aggregates ===
   const levelCounts = {}, sourceCounts = {}, timelineCounts = {};
   events.forEach(e => {
     levelCounts[e.level] = (levelCounts[e.level] || 0)+1;
@@ -31,20 +36,49 @@
     timelineCounts[ts]=(timelineCounts[ts]||0)+1;
   });
 
-  new Chart(levelChart, {
+  // === Destroy old charts before redraw ===
+  if (window.levelChartObj) window.levelChartObj.destroy();
+  if (window.sourceChartObj) window.sourceChartObj.destroy();
+  if (window.timelineChartObj) window.timelineChartObj.destroy();
+
+  // === Severity Chart ===
+  window.levelChartObj = new Chart(levelChart, {
     type:"bar",
-    data:{ labels:Object.keys(levelCounts), datasets:[{ data:Object.values(levelCounts), backgroundColor:"#facc15"}]},
+    data:{ labels:Object.keys(levelCounts), datasets:[{ data:Object.values(levelCounts), backgroundColor:"#facc15"}] },
     options:{ plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:"#facc15"}}, y:{ticks:{color:"#facc15"}}}}
   });
 
-  new Chart(sourceChart, {
+  // === Source Chart ===
+  window.sourceChartObj = new Chart(sourceChart, {
     type:"pie",
-    data:{ labels:Object.keys(sourceCounts), datasets:[{ data:Object.values(sourceCounts), backgroundColor:["#facc15","#d4aa00","#aa8800"]}]}
+    data:{ labels:Object.keys(sourceCounts), datasets:[{ data:Object.values(sourceCounts), backgroundColor:["#facc15","#d4aa00","#aa8800","#775500"]}]}
   });
 
-  const timelineKeys = Object.keys(timelineCounts).sort();
-  new Chart(timelineChart,{
+  // === Timeline ===
+  const keys = Object.keys(timelineCounts).sort();
+  window.timelineChartObj = new Chart(timelineChart,{
     type:"line",
-    data:{ labels:timelineKeys, datasets:[{ data:timelineKeys.map(k=>timelineCounts[k]), borderColor:"#facc15", fill:false }]}
+    data:{ labels:keys, datasets:[{ data:keys.map(k=>timelineCounts[k]), borderColor:"#facc15", fill:false }]}
   });
-})();
+}
+
+// === AUTO REFRESH SYSTEM ===
+function startAutoRefresh() {
+  if (refreshInterval) clearInterval(refreshInterval);
+  refreshInterval = setInterval(() => {
+    if (autoRefresh) renderSIEM();
+  }, 10000); // every 10 seconds
+}
+
+// === Toggle Handling ===
+document.getElementById("auto-refresh-toggle").addEventListener("change", e => {
+  autoRefresh = e.target.checked;
+  document.getElementById("refresh-status").textContent = autoRefresh ? "ON" : "OFF";
+});
+
+// === Manual Refresh ===
+document.getElementById("manual-refresh").addEventListener("click", renderSIEM);
+
+// === Initial Load ===
+renderSIEM();
+startAutoRefresh();
