@@ -1,693 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Terminal Simulator | Daniel Michael</title>
-
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- Custom CSS -->
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terminal | Daniel Michael</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .terminal-page { min-height:100vh; display:flex; flex-direction:column; padding-top:4.5rem; }
+    .t-header { padding:2rem 4rem 1.5rem; border-bottom:1px solid rgba(201,168,76,.08); }
+    .t-header-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .t-page-title { font-family:var(--font-display); font-size:1.4rem; font-weight:600; letter-spacing:.06em; color:var(--white); }
+    .t-page-title span { color:var(--gold); }
+    .t-hint { font-family:var(--font-mono); font-size:.67rem; color:var(--muted); letter-spacing:.1em; }
+    .t-hint span { color:var(--gold-dim); }
+    .t-wrap { flex:1; max-width:1100px; margin:0 auto; width:100%; padding:2rem 4rem 4rem; }
+    .t-window { background:#050608; border:1px solid rgba(201,168,76,.2); height:calc(100vh - 260px); min-height:480px; display:flex; flex-direction:column; box-shadow:0 0 60px rgba(201,168,76,.04); }
+    .t-titlebar { background:var(--obsidian-3); padding:.7rem 1.2rem; display:flex; align-items:center; gap:.5rem; border-bottom:1px solid rgba(201,168,76,.1); flex-shrink:0; }
+    .dot { width:10px; height:10px; border-radius:50%; }
+    .dr { background:#ff5f56; } .dy { background:#ffbd2e; } .dg { background:#27c93f; }
+    .t-bar-title { margin:0 auto; font-family:var(--font-mono); font-size:.63rem; letter-spacing:.15em; color:var(--muted); }
+    .t-bar-status { font-family:var(--font-mono); font-size:.58rem; color:var(--green); letter-spacing:.1em; }
+    #t-out { flex:1; overflow-y:auto; padding:1.4rem 2rem; font-family:var(--font-mono); font-size:.8rem; line-height:1.9; scroll-behavior:smooth; }
+    #t-out::-webkit-scrollbar { width:3px; }
+    #t-out::-webkit-scrollbar-thumb { background:var(--gold-dim); }
+    .tl { display:block; white-space:pre-wrap; word-break:break-word; }
+    .tp { color:var(--gold); } .ts { color:var(--green); } .te { color:#dc6060; } .ti { color:var(--muted); } .tg { color:var(--gold); } .td { color:#4a4840; }
+    .t-input-row { display:flex; align-items:center; padding:.7rem 2rem; border-top:1px solid rgba(201,168,76,.08); background:#050608; flex-shrink:0; }
+    .t-in-prompt { font-family:var(--font-mono); font-size:.8rem; color:var(--gold); white-space:nowrap; margin-right:.5rem; }
+    #cmd { flex:1; background:transparent; border:none; outline:none; font-family:var(--font-mono); font-size:.8rem; color:var(--white); caret-color:var(--gold); }
+    .quickcmds { padding:.7rem 4rem; max-width:1100px; margin:0 auto; width:100%; display:flex; gap:.5rem; flex-wrap:wrap; }
+    .qcmd { font-family:var(--font-mono); font-size:.63rem; letter-spacing:.1em; padding:.28rem .75rem; border:1px solid rgba(201,168,76,.2); color:var(--gold-dim); background:transparent; cursor:pointer; transition:all .2s; }
+    .qcmd:hover { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.05); }
+    @media (max-width:768px) { .t-header,.t-wrap,.quickcmds { padding-left:1.5rem; padding-right:1.5rem; } #t-out,.t-input-row { padding-left:1rem; padding-right:1rem; } }
+  </style>
 </head>
 <body>
+  <nav>
+    <a href="index.html" class="nav-logo">DM</a>
+    <ul class="nav-links">
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="resume.html">Resume</a></li>
+      <li><a href="labs.html">Cyber Labs</a></li>
+      <li><a href="terminal.html" class="active">Terminal</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
 
-<!-- Navbar -->
-<nav class="main-navbar">
-  <div class="nav-container">
-    <a href="index.html" class="nav-logo">Daniel Michael</a>
-
-    <div class="nav-links">
-      <a href="projects.html" class="nav-btn">Projects</a>
-      <a href="resume.html" class="nav-btn">Resume</a>
-      <a href="labs.html" class="nav-btn">Cyber Labs</a>
-      <a href="terminal.html" class="nav-btn">Terminal</a>
-      <a href="siem.html" class="nav-btn">SIEM Dashboard</a>
-      <a href="contact.html" class="nav-btn">Contact</a>
+  <div class="terminal-page">
+    <div class="t-header">
+      <div class="t-header-inner">
+        <h1 class="t-page-title">Interactive <span>Terminal</span></h1>
+        <p class="t-hint">Type <span>help</span> to get started</p>
+      </div>
+    </div>
+    <div class="t-wrap">
+      <div class="t-window">
+        <div class="t-titlebar">
+          <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+          <span class="t-bar-title">daniel@portfolio ~ bash</span>
+          <span class="t-bar-status">● connected</span>
+        </div>
+        <div id="t-out"></div>
+        <div class="t-input-row">
+          <span class="t-in-prompt">daniel@portfolio:~$&nbsp;</span>
+          <input id="cmd" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus />
+        </div>
+      </div>
+    </div>
+    <div class="quickcmds">
+      <button class="qcmd" onclick="run('about')">about</button>
+      <button class="qcmd" onclick="run('skills')">skills</button>
+      <button class="qcmd" onclick="run('projects')">projects</button>
+      <button class="qcmd" onclick="run('labs')">labs</button>
+      <button class="qcmd" onclick="run('certs')">certs</button>
+      <button class="qcmd" onclick="run('contact')">contact</button>
+      <button class="qcmd" onclick="run('status')">status</button>
+      <button class="qcmd" onclick="run('clear')">clear</button>
     </div>
   </div>
-</nav>
 
-<!-- Hero Section -->
-<section class="hero text-center d-flex align-items-center justify-content-center" style="height:250px;">
-  <div class="container">
-    <h1 class="display-4">Interactive Terminal</h1>
-    <p class="lead">
-      Type commands below and explore my skills, projects, and contact info.
-      This interactive terminal simulates a cyber operations environment.
-      You can use commands to explore my projects, skills, and labs.
-      In future updates, this terminal will be connected to real Python programs and physical security hardware I’m building, turning the portfolio into an actual cyber control system.
-    </p>
-  </div>
-</section>
+  <script>
+    const out=document.getElementById('t-out');
+    const inp=document.getElementById('cmd');
+    const hist=[];let hi=-1;
 
-<!-- Terminal Section -->
-<section class="terminal-section container">
+    const boot=[
+      {c:'td',t:'──────────────────────────────────────────────────'},
+      {c:'tg',t:'   DANIEL MICHAEL // PORTFOLIO TERMINAL v2.0'},
+      {c:'td',t:'──────────────────────────────────────────────────'},
+      {c:'ti',t:'   Cristo Rey Atlanta Jesuit · Class of 2028'},
+      {c:'td',t:''},
+      {c:'ts',t:'   [OK] Session started'},
+      {c:'ts',t:'   [OK] Projects: 3 active'},
+      {c:'ts',t:'   [OK] Labs: 8 tracked'},
+      {c:'td',t:''},
+      {c:'ti',t:"   Type 'help' to see available commands."},
+      {c:'td',t:'──────────────────────────────────────────────────'},
+      {c:'',  t:''},
+    ];
 
-  <h2 class="terminal-title text-center">Cyber Terminal</h2>
+    const CMDS={
+      help:()=>[
+        {c:'tg',t:'Commands:'},
+        {c:'td',t:''},
+        {c:'tg',t:'  about      →  About me'},
+        {c:'tg',t:'  skills     →  Technical skills'},
+        {c:'tg',t:'  projects   →  My projects'},
+        {c:'tg',t:'  labs       →  Cyber labs & training'},
+        {c:'tg',t:'  certs      →  Certification pipeline'},
+        {c:'tg',t:'  contact    →  Contact info'},
+        {c:'tg',t:'  status     →  Project status'},
+        {c:'tg',t:'  ls         →  List site sections'},
+        {c:'tg',t:'  clear      →  Clear terminal'},
+        {c:'td',t:''},
+      ],
+      about:()=>[
+        {c:'tg',t:'About:'},
+        {c:'td',t:''},
+        {c:'',t:'  Name     :  Daniel Michael'},
+        {c:'',t:'  School   :  Cristo Rey Atlanta Jesuit High School'},
+        {c:'',t:'  Year     :  Sophomore · Class of 2028'},
+        {c:'',t:'  Location :  Atlanta, Georgia'},
+        {c:'',t:'  Work     :  Georgia Tech · Dean of Engineering Office'},
+        {c:'',t:'  Robotics :  FTC Programmer · 13th Place, Marist League'},
+        {c:'',t:'  Plans    :  Pursuing CS & Cybersecurity in college'},
+        {c:'td',t:''},
+      ],
+      skills:()=>[
+        {c:'tg',t:'Skills:'},
+        {c:'td',t:''},
+        {c:'',t:'  Languages   │  Python · Java · Bash'},
+        {c:'',t:'  OS          │  Linux · Windows'},
+        {c:'',t:'  Networking  │  TCP/IP · DNS · HTTP · Wireshark'},
+        {c:'',t:'  Security    │  CTFs · Port Scanning · SIEM · Log Analysis'},
+        {c:'',t:'  Hardware    │  Arduino · Embedded · Physical Security'},
+        {c:'',t:'  Tools       │  Git · GitHub Pages · VS Code'},
+        {c:'td',t:''},
+      ],
+      projects:()=>[
+        {c:'tg',t:'Projects:'},
+        {c:'td',t:''},
+        {c:'ts',t:'  [LIVE]    password-strength-analyzer'},
+        {c:'ti',t:'             Python · entropy calc · SIEM logging'},
+        {c:'td',t:''},
+        {c:'tg',t:'  [WIP]     python-port-scanner'},
+        {c:'ti',t:'             TCP probing · service ID · SIEM integration'},
+        {c:'td',t:''},
+        {c:'',t:'  [PROTO]   arduino-cyberdoor-v1'},
+        {c:'ti',t:'             Physical access control · PIN auth · servo lock'},
+        {c:'td',t:''},
+      ],
+      labs:()=>[
+        {c:'tg',t:'Labs:'},
+        {c:'td',t:''},
+        {c:'ts',t:'  [DONE]    Wireshark Traffic Analysis'},
+        {c:'tg',t:'  [ACTIVE]  TryHackMe – Pre-Security & Intro to Cyber'},
+        {c:'tg',t:'  [ACTIVE]  PicoCTF'},
+        {c:'tg',t:'  [ACTIVE]  OverTheWire – Bandit'},
+        {c:'tg',t:'  [ACTIVE]  Python Security Automation'},
+        {c:'tg',t:'  [ACTIVE]  CyberDoor Hardware Lab'},
+        {c:'tg',t:'  [WIP]     HackTheBox Academy'},
+        {c:'ts',t:'  [LIVE]    Security SIEM Dashboard'},
+        {c:'td',t:''},
+      ],
+      certs:()=>[
+        {c:'tg',t:'Certification Pipeline:'},
+        {c:'td',t:''},
+        {c:'tg',t:'  Stage 1 — Foundation  [In Progress]'},
+        {c:'ti',t:'    CompTIA Network+'},
+        {c:'ti',t:'    Linux Essentials'},
+        {c:'ti',t:'    Google Cybersecurity Certificate'},
+        {c:'td',t:''},
+        {c:'ti',t:'  Stage 2 — Security Core  [Planned]'},
+        {c:'ti',t:'    CompTIA Security+ · eJPT · AZ-900 · Splunk'},
+        {c:'td',t:''},
+        {c:'ti',t:'  Stage 3 — Specialization  [Future]'},
+        {c:'ti',t:'    OSCP · eWPT · GSEC (SANS)'},
+        {c:'td',t:''},
+      ],
+      contact:()=>[
+        {c:'tg',t:'Contact:'},
+        {c:'td',t:''},
+        {c:'',t:'  Email   :  Daniel.Michael20208@gmail.com'},
+        {c:'',t:'  GitHub  :  github.com/danielmichael20208'},
+        {c:'ti',t:'  Response: 24–48 hours'},
+        {c:'td',t:''},
+      ],
+      status:()=>[
+        {c:'tg',t:'Project Status:'},
+        {c:'td',t:''},
+        {c:'ts',t:'  [LIVE]    password-strength-analyzer'},
+        {c:'tg',t:'  [WIP]     python-port-scanner'},
+        {c:'',t:'  [PROTO]   arduino-cyberdoor-v1'},
+        {c:'td',t:''},
+      ],
+      ls:()=>[
+        {c:'tg',t:'Site Sections:'},
+        {c:'td',t:''},
+        {c:'',t:'  index.html      Home'},
+        {c:'',t:'  projects.html   Projects'},
+        {c:'',t:'  resume.html     Resume'},
+        {c:'',t:'  labs.html       Cyber Labs'},
+        {c:'',t:'  terminal.html   This terminal'},
+        {c:'',t:'  contact.html    Contact'},
+        {c:'td',t:''},
+      ],
+      clear:()=>{ out.innerHTML=''; return []; },
+    };
 
-  <div class="terminal-window">
-    <div class="terminal-header">daniel@portfolio:~</div>
-    <div id="terminal-output" class="terminal-body"></div>
+    function print(line){const s=document.createElement('span');s.className='tl '+(line.c||'');s.textContent=line.t;out.appendChild(s);}
+    function printAll(lines){if(lines&&lines.length)lines.forEach(l=>print(l));out.scrollTop=out.scrollHeight;}
+    function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-    <div class="terminal-input">
-      <span class="terminal-prompt">$</span>
-      <input id="terminal-command" type="text" placeholder="Type 'help' and press Enter">
-    </div>
-  </div>
-
-</section>
-
-<footer class="bg-dark text-white text-center py-3 mt-5">
-  <p>© 2026 Daniel Michael</p>
-</footer>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-// Simple fake filesystem (future expansion)
-const fileSystem = {
-  "/": {
-    home: {
-      daniel: {
-        "password.py": "Password Strength Checker Program",
-        "scanner.py": "Port Scanner",
-        "firewall.py": "Firewall Simulator"
-      }
-    }
-  }
-};
-let currentDir = "/home/daniel";
-</script>
-
-<!-- Terminal JS -->
-<script>
-const terminal = document.getElementById("terminal-command");
-const output = document.getElementById("terminal-output");
-
-// helper to print to terminal
-function write(line = "") {
-  output.innerHTML += line + "\n";
-  output.scrollTop = output.scrollHeight;
-}
-
-// Reusable formatter
-function formatAndWriteEvent(ev) {
-  const time = ev.timestamp || "unknown-time";
-  const src  = (ev.source || "src").toUpperCase().padEnd(4, " ");
-  const lvl  = (ev.level  || "INFO ").padEnd(6, " ");
-  const type = ev.event_type || "EVENT";
-  const msg  = ev.message || "";
-  write(`[${time}][${src}][${lvl}] ${type} - ${msg}`);
-}
-
-// show banner on load
-write("DanielOS Cyber Terminal v1.2");
-write("Type 'help' to see available commands.");
-write("----------------------------------------");
-
-function showHelp() {
-  write(`
-help                        Show this help message
-about                       Who is Daniel
-skills                      List skills
-projects                    View GitHub link
-contact                     Contact info
-status                      Show system status summary
-logs                        Show all logs
-logs since=10m              Logs from last 10 minutes
-logs since=2h               Logs from last 2 hours
-logs since=3d               Logs from last 3 days
-logs level=warn             Filter by log level
-logs source=scan            Filter by source (scan/pwa/door)
-logs contains=ssh           Search logs for keyword
-logs export csv             Download logs as CSV
-logs export jsonl           Download logs as JSON Lines
-logs --follow               Follow logs (tail-like)
-alerts                      Run simple detection rules
-door                        Info about Arduino CyberDoor project
-door logs                   Show sample CyberDoor security logs
-python cyberdoor_logs.py    Simulate CyberDoor log script
-python password_analyzer.py Simulate Password Analyzer script
-python port_scanner.py      Simulate Port Scanner script
-scan                        Instructions for running real scanner
-clear                       Clear the terminal
-`);
-}
-
-function showDoorInfo() {
-  write("CyberDoor v1 - Arduino Security Access System");
-  write("Features:");
-  write("- Keypad PIN entry");
-  write("- Servo-based lock control");
-  write("- Green/Red LED indicators");
-  write("- Alarm and lockdown after 3 failed attempts");
-  write("- Logs security events with levels like [INFO], [WARN], [ALERT]");
-}
-
-// Mini-SIEM style system status
-function showStatus() {
-  write("=== DanielOS System Status ===");
-  write("[OK] CyberDoor (Arduino access control)        : SIMULATED / HEALTHY");
-  write("[OK] Password Analyzer (Python)                : READY");
-  write("[OK] Port Scanner (Python)                     : READY");
-  write("[OK] Cyber Labs (TryHackMe, CTF practice)      : ACTIVE / IN PROGRESS");
-  write("[OK] GitHub Portfolio                          : ONLINE");
-  write("[INFO] All core tools operational. Use 'logs' to view recent events.");
-}
-
-// CyberDoor logs (simulated)
-function showDoorLogs() {
-  const logs = [
-    "[BOOT] 0s - CyberDoor v1 starting...",
-    "[INFO] 0s - System armed - waiting for PIN input",
-    "[INFO] 5s - PIN entered, evaluating...",
-    "[DATA] Raw PIN: 9999",
-    "[ACCESS] 5s - ACCESS DENIED",
-    "[WARN] 5s - Failed attempts: 1",
-    "[INFO] 10s - PIN entered, evaluating...",
-    "[DATA] Raw PIN: 9999",
-    "[ACCESS] 10s - ACCESS DENIED",
-    "[WARN] 10s - Failed attempts: 2",
-    "[INFO] 15s - PIN entered, evaluating...",
-    "[DATA] Raw PIN: 9999",
-    "[ACCESS] 15s - ACCESS DENIED",
-    "[WARN] 15s - Failed attempts: 3",
-    "[ALERT] 15s - SECURITY LOCKDOWN ACTIVATED - 3 failed attempts",
-    "[INFO] 20s - Lockdown cycle complete, fail counter reset",
-    "[INFO] 30s - PIN entered, evaluating...",
-    "[DATA] Raw PIN: 1234",
-    "[ACCESS] 30s - ACCESS GRANTED",
-    "[INFO] 30s - Door unlocked",
-    "[INFO] 33s - Door auto-locked after timeout",
-    "[INFO] 33s - Door locked"
-  ];
-  write("Simulated CyberDoor security event log:");
-  write("----------------------------------------");
-  logs.forEach(line => write(line));
-}
-
-// JSON-backed global SIEM logs
-async function showGlobalLogs() {
-  write("=== Combined Security Event Log (JSON-backed) ===");
-  write("Attempting to load logs from data/logs_web.json ...");
-  write("------------------------------------------------------------");
-
-  try {
-    const response = await fetch("data/logs_web.json?" + Date.now());
-    if (!response.ok) {
-      write("[ERROR] Could not load logs_web.json (HTTP " + response.status + ").");
-      return;
+    function run(cmd){
+      cmd=cmd.trim().toLowerCase();if(!cmd)return;
+      const echo=document.createElement('span');echo.className='tl';
+      echo.innerHTML=`<span class="tp">daniel@portfolio:~$ </span>${esc(cmd)}`;
+      out.appendChild(echo);
+      if(cmd in CMDS){const r=CMDS[cmd]();if(r&&r.length)printAll(r);}
+      else{printAll([{c:'te',t:`bash: ${cmd}: command not found`},{c:'ti',t:"Type 'help' for commands."},{c:'td',t:''}]);}
+      out.scrollTop=out.scrollHeight;
     }
 
-    const events = await response.json();
-    if (!Array.isArray(events) || events.length === 0) {
-      write("[INFO] No events found in logs_web.json.");
-      return;
-    }
+    let i=0;function bootNext(){if(i<boot.length){print(boot[i++]);out.scrollTop=out.scrollHeight;setTimeout(bootNext,50);}}
+    bootNext();
 
-    events.forEach(ev => formatAndWriteEvent(ev));
-
-    write("");
-    write("Tip: These events come from logs_web.json, which can be generated by my Python tools.");
-  } catch (err) {
-    write("[ERROR] Failed to load logs: " + err.message);
-  }
-}
-
-// CSV export
-async function exportLogsCSV() {
-  write("Exporting logs as CSV...");
-
-  try {
-    const response = await fetch("data/logs_web.json?" + Date.now());
-    const events = await response.json();
-
-    if (!Array.isArray(events) || events.length === 0) {
-      write("[INFO] No logs to export.");
-      return;
-    }
-
-    let csv = "timestamp,source,level,event_type,message\n";
-    events.forEach(ev => {
-      csv += `"${ev.timestamp}","${ev.source}","${ev.level}","${ev.event_type}","${(ev.message || "").replace(/"/g, '""')}"\n`;
+    inp.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){const v=inp.value;hist.unshift(v);hi=-1;inp.value='';run(v);}
+      else if(e.key==='ArrowUp'){e.preventDefault();if(hi<hist.length-1){hi++;inp.value=hist[hi];}}
+      else if(e.key==='ArrowDown'){e.preventDefault();if(hi>0){hi--;inp.value=hist[hi];}else{hi=-1;inp.value='';}}
     });
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    triggerDownload(url, "logs_export.csv");
-
-    write("[OK] CSV export complete → logs_export.csv downloaded.");
-  } catch (err) {
-    write("[ERROR] CSV export failed: " + err.message);
-  }
-}
-
-// JSONL export
-async function exportLogsJSONL() {
-  write("Exporting logs as JSONL...");
-
-  try {
-    const response = await fetch("data/logs_web.json?" + Date.now());
-    const events = await response.json();
-
-    if (!Array.isArray(events) || events.length === 0) {
-      write("[INFO] No logs to export.");
-      return;
-    }
-
-    let jsonl = events.map(ev => JSON.stringify(ev)).join("\n");
-
-    const blob = new Blob([jsonl], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    triggerDownload(url, "logs_export.jsonl");
-
-    write("[OK] JSONL export complete → logs_export.jsonl downloaded.");
-  } catch (err) {
-    write("[ERROR] JSONL export failed: " + err.message);
-  }
-}
-
-function triggerDownload(url, filename) {
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-// Time-based filtering
-async function filterLogsSince(timeSpec) {
-  write(`Filtering logs from last ${timeSpec}...`);
-  write("-------------------------------------------------------------");
-
-  const timeMap = { s: 1000, m: 60000, h: 3600000, d: 86400000 };
-
-  const unit = timeSpec.slice(-1);
-  const amount = parseInt(timeSpec.slice(0, -1));
-
-  if (!timeMap[unit] || isNaN(amount)) {
-    write("[ERROR] Invalid time format. Use: logs since=10m | 2h | 24h | 3d");
-    return;
-  }
-
-  const threshold = Date.now() - (amount * timeMap[unit]);
-
-  try {
-    const response = await fetch("data/logs_web.json?" + Date.now());
-    const events = await response.json();
-
-    if (!Array.isArray(events) || events.length === 0) {
-      write("[INFO] No events in log.");
-      return;
-    }
-
-    const filtered = events.filter(ev => {
-      const ts = Date.parse(ev.timestamp);
-      return !isNaN(ts) && ts >= threshold;
-    });
-
-    if (filtered.length === 0) {
-      write("[INFO] No events in that time range.");
-      return;
-    }
-
-    filtered.forEach(ev => formatAndWriteEvent(ev));
-  } catch (err) {
-    write("[ERROR] Failed to filter logs: " + err.message);
-  }
-}
-
-// Level filter
-async function filterLogsByLevel(level) {
-  level = level.toUpperCase();
-  write(`Filtering logs by level: ${level}`);
-  write("-------------------------------------------------------------");
-
-  try {
-    const response = await fetch("data/logs_web.json?" + Date.now());
-    const events = await response.json();
-
-    if (!Array.isArray(events) || events.length === 0) {
-      write("[INFO] No logs in store.");
-      return;
-    }
-
-    const filtered = events.filter(ev => (ev.level || "").toUpperCase() === level);
-
-    if (filtered.length === 0) {
-      write("[INFO] No logs matched that level.");
-      return;
-    }
-
-    filtered.forEach(ev => formatAndWriteEvent(ev));
-  } catch (err) {
-    write("[ERROR] Level filter failed: " + err.message);
-  }
-}
-
-// Source filter
-async function filterLogsBySource(source) {
-  source = source.toLowerCase();
-  write(`Filtering logs by source: ${source}`);
-  write("-------------------------------------------------------------");
-
-  try {
-    const response = await fetch("data/logs_web.json?" + Date.now());
-    const events = await response.json();
-
-    if (!Array.isArray(events) || events.length === 0) {
-      write("[INFO] No logs in store.");
-      return;
-    }
-
-    const filtered = events.filter(ev => (ev.source || "").toLowerCase() === source);
-
-    if (filtered.length === 0) {
-      write("[INFO] No logs matched that source.");
-      return;
-    }
-
-    filtered.forEach(ev => formatAndWriteEvent(ev));
-  } catch (err) {
-    write("[ERROR] Source filter failed: " + err.message);
-  }
-}
-
-// Keyword search
-async function filterLogsContains(substr) {
-  substr = substr.toLowerCase();
-  write(`Searching logs for "${substr}"...`);
-  write("-------------------------------------------------------------");
-
-  try {
-    const response = await fetch("data/logs_web.json?" + Date.now());
-    const events = await response.json();
-
-    if (!Array.isArray(events) || events.length === 0) {
-      write("[INFO] No logs in store.");
-      return;
-    }
-
-    const filtered = events.filter(ev =>
-      JSON.stringify(ev).toLowerCase().includes(substr)
-    );
-
-    if (filtered.length === 0) {
-      write("[INFO] No matching logs found.");
-      return;
-    }
-
-    filtered.forEach(ev => formatAndWriteEvent(ev));
-  } catch (err) {
-    write("[ERROR] Contains filter failed: " + err.message);
-  }
-}
-
-// Follow mode (simple tail)
-async function tailLogs(interval = 2000) {
-  write("Following logs... (refresh the page to stop)");
-  write("-------------------------------------------------------------");
-
-  let lastLength = 0;
-
-  setInterval(async () => {
-    try {
-      const response = await fetch("data/logs_web.json?" + Date.now());
-      const events = await response.json();
-
-      if (!Array.isArray(events)) return;
-
-      if (events.length > lastLength) {
-        const newEvents = events.slice(lastLength);
-        newEvents.forEach(ev => formatAndWriteEvent(ev));
-        lastLength = events.length;
-      }
-    } catch (err) {
-      write("[ERROR] Tail failed: " + err.message);
-    }
-  }, interval);
-}
-
-// Simple detection rules
-async function runAlertRules() {
-  write("Running detection rules...");
-  write("-------------------------------------------------------------");
-
-  try {
-    const response = await fetch("data/logs_web.json?" + Date.now());
-    const events = await response.json();
-
-    if (!Array.isArray(events) || events.length === 0) {
-      write("[INFO] No logs available for analysis.");
-      return;
-    }
-
-    const alerts = [];
-
-    const refused = events.filter(e => e.level === "WARN" && e.event_type === "PORT_REFUSED");
-    if (refused.length >= 3) {
-      alerts.push("[ALERT] Possible port scanning activity detected (>=3 refused ports).");
-    }
-
-    const denied = events.filter(e => e.event_type === "DOOR_DENIED");
-    if (denied.length >= 3) {
-      alerts.push("[ALERT] Physical access brute force attempts detected on CyberDoor.");
-    }
-
-    const weak = events.filter(e => e.event_type === "PASSWORD_RATED" && e.context && e.context.rating === "WEAK");
-    if (weak.length >= 5) {
-      alerts.push("[ALERT] Multiple weak passwords detected for user.");
-    }
-
-    if (alerts.length === 0) {
-      write("[INFO] No alerts triggered.");
-    } else {
-      alerts.forEach(a => write(a));
-    }
-  } catch (err) {
-    write("[ERROR] Alerts run failed: " + err.message);
-  }
-}
-
-// Composite query: logs source=scan level=warn contains=ssh
-async function runCompositeQuery(line) {
-  write("Running composite query...");
-  write("-------------------------------------------------------------");
-
-  const parts = line.split(" ").slice(1); // drop 'logs'
-  const filters = {};
-
-  parts.forEach(p => {
-    const [k, v] = p.split("=");
-    if (k && v) filters[k] = v;
-  });
-
-  try {
-    const response = await fetch("data/logs_web.json?" + Date.now());
-    let events = await response.json();
-
-    if (!Array.isArray(events) || events.length === 0) {
-      write("[INFO] No logs available.");
-      return;
-    }
-
-    if (filters.since) {
-      const timeMap = { s: 1000, m: 60000, h: 3600000, d: 86400000 };
-      const unit = filters.since.slice(-1);
-      const amount = parseInt(filters.since.slice(0, -1));
-      if (timeMap[unit] && !isNaN(amount)) {
-        const threshold = Date.now() - (amount * timeMap[unit]);
-        events = events.filter(ev => {
-          const ts = Date.parse(ev.timestamp);
-          return !isNaN(ts) && ts >= threshold;
-        });
-      }
-    }
-
-    if (filters.source) {
-      const s = filters.source.toLowerCase();
-      events = events.filter(ev => (ev.source || "").toLowerCase() === s);
-    }
-
-    if (filters.level) {
-      const l = filters.level.toUpperCase();
-      events = events.filter(ev => (ev.level || "").toUpperCase() === l);
-    }
-
-    if (filters.contains) {
-      const c = filters.contains.toLowerCase();
-      events = events.filter(ev => JSON.stringify(ev).toLowerCase().includes(c));
-    }
-
-    if (events.length === 0) {
-      write("[INFO] No events matched composite query.");
-      return;
-    }
-
-    events.forEach(ev => formatAndWriteEvent(ev));
-  } catch (err) {
-    write("[ERROR] Composite query failed: " + err.message);
-  }
-}
-
-// Password Analyzer (simulated)
-function runPasswordAnalyzer() {
-  write("Running Password Analyzer (simulated)...");
-  write("----------------------------------------");
-  write("Rules checked:");
-  write("- Length >= 12 characters");
-  write("- Contains uppercase and lowercase letters");
-  write("- Contains numbers");
-  write("- Contains symbols");
-  write("- Avoids common / leaked passwords");
-  write("");
-
-  const samples = [
-    "123456",
-    "password123",
-    "Daniel2026",
-    "Cyber@2026",
-    "G!tHub_P0rtfolio2026"
-  ];
-
-  samples.forEach(pw => {
-    let score = 0;
-    if (pw.length >= 12) score++;
-    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
-    if (/[^A-Za-z0-9]/.test(pw)) score++;
-
-    let rating = "";
-    if (score <= 1) rating = "VERY WEAK";
-    else if (score === 2) rating = "WEAK";
-    else if (score === 3) rating = "GOOD";
-    else rating = "STRONG";
-
-    write(`"${pw}" → ${rating}`);
-  });
-
-  write("");
-  write("Tip: Use a long passphrase with mixed characters, and never reuse passwords across sites.");
-}
-
-// Port Scanner (simulated)
-function runPortScanner() {
-  write("Running Port Scanner (simulated)...");
-  write("----------------------------------------");
-  write("Target: 127.0.0.1");
-  write("Ports scanned: 20-30, 80, 443");
-  write("");
-
-  const results = [
-    "[SCAN] 22/tcp OPEN (SSH)",
-    "[SCAN] 23/tcp REFUSED",
-    "[SCAN] 25/tcp FILTERED",
-    "[SCAN] 80/tcp OPEN (HTTP)",
-    "[SCAN] 443/tcp OPEN (HTTPS)",
-    "[SCAN] 3389/tcp TIMEOUT"
-  ];
-
-  results.forEach(line => write(line));
-
-  write("");
-  write("Summary: example of realistic port states (open/refused/filtered/timeout).");
-  write("Note: Real scans are done with Python (port_scanner.py) or tools like nmap.");
-}
-
-// main command handler
-function handleCommand(rawCmd) {
-  const cmd = rawCmd.trim();
-  if (cmd === "") return;
-
-  write("$ " + cmd);
-  const lower = cmd.toLowerCase();
-
-  if (lower === "help") {
-    showHelp();
-  } else if (lower === "about") {
-    write("Daniel Michael – Cybersecurity student, FTC Robotics programmer, and Georgia Tech Work Study.");
-  } else if (lower === "skills") {
-    write("Skills: Python, Java, HTML, CSS, Linux, Cybersecurity, Robotics Programming");
-  } else if (lower === "projects") {
-    write("GitHub → https://github.com/danielmichael20208");
-  } else if (lower === "contact") {
-    write("Email → Daniel.Michael20208@gmail.com");
-  } else if (lower === "status") {
-    showStatus();
-  } else if (lower === "logs") {
-    showGlobalLogs();
-  } else if (lower.startsWith("logs since=")) {
-    filterLogsSince(lower.split("=")[1]);
-  } else if (lower.startsWith("logs level=")) {
-    filterLogsByLevel(lower.split("=")[1]);
-  } else if (lower.startsWith("logs source=")) {
-    filterLogsBySource(lower.split("=")[1]);
-  } else if (lower.startsWith("logs contains=")) {
-    filterLogsContains(lower.split("=")[1]);
-  } else if (lower === "logs export csv") {
-    exportLogsCSV();
-  } else if (lower === "logs export jsonl") {
-    exportLogsJSONL();
-  } else if (lower === "logs --follow") {
-    tailLogs();
-  } else if (lower === "alerts") {
-    runAlertRules();
-  } else if (lower.startsWith("logs ")) {
-    // composite query: logs source=scan level=warn since=2h contains=ssh
-    runCompositeQuery(lower);
-  } else if (lower === "door") {
-    showDoorInfo();
-  } else if (lower === "door logs" || lower === "python cyberdoor_logs.py") {
-    showDoorLogs();
-  } else if (lower === "python password_analyzer.py" || lower === "run password" || lower === "password analyzer") {
-    runPasswordAnalyzer();
-  } else if (lower === "python port_scanner.py" || lower === "run scanner" || lower === "port scanner") {
-    runPortScanner();
-  } else if (lower === "scan" || lower === "scanner" || lower === "real scanner") {
-    write("Launching Real Port Scanner Mode...");
-    write("==================================");
-    write("");
-    write("Run this locally in your terminal:");
-    write("");
-    write("   python port_scanner.py");
-    write("");
-    write("When finished, run:");
-    write("");
-    write("   logs");
-    write("");
-    write("to view SIEM results from data/logs_web.json");
-  } else if (lower === "clear") {
-    output.innerHTML = "";
-  } else {
-    write("Command not found. Type 'help' to see available commands.");
-  }
-}
-
-terminal.addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    const cmd = terminal.value;
-    terminal.value = "";
-    handleCommand(cmd);
-  }
-});
-</script>
-
-<!-- Navbar active highlight -->
-<script>
-  const links = document.querySelectorAll(".nav-btn");
-  const current = location.pathname.split("/").pop() || "index.html";
-
-  links.forEach(link => {
-    if (link.getAttribute("href") === current) {
-      link.classList.add("active");
-    }
-  });
-</script>
-
+    document.querySelector('.t-window').addEventListener('click',()=>inp.focus());
+  </script>
 </body>
 </html>

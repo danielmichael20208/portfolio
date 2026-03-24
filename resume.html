@@ -1,77 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Resume | Daniel Michael</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .resume-layout { display:grid; grid-template-columns:1fr 300px; gap:3rem; align-items:start; }
+    .dl-card { border:1px solid rgba(201,168,76,.2); background:var(--obsidian-2); padding:2rem; position:sticky; top:6rem; }
+    .dl-title { font-family:var(--font-display); font-size:1rem; font-weight:600; letter-spacing:.05em; color:var(--white); margin-bottom:.4rem; }
+    .dl-sub { font-family:var(--font-mono); font-size:.67rem; color:var(--muted); letter-spacing:.08em; margin-bottom:1.5rem; line-height:1.6; }
+    .btn-dl { display:flex; align-items:center; justify-content:center; gap:.5rem; width:100%; font-family:var(--font-mono); font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; text-decoration:none; color:var(--obsidian); background:var(--gold); padding:.85rem 1.5rem; transition:background .25s; margin-bottom:.75rem; }
+    .btn-dl:hover { background:var(--gold-light); }
+    .btn-sec { display:flex; align-items:center; justify-content:center; gap:.5rem; width:100%; font-family:var(--font-mono); font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; text-decoration:none; color:var(--gold); border:1px solid rgba(201,168,76,.3); padding:.8rem 1.5rem; transition:border-color .25s; }
+    .btn-sec:hover { border-color:var(--gold); }
+    .dl-meta { margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(201,168,76,.1); }
+    .meta-row { display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:.63rem; color:var(--muted); padding:.28rem 0; border-bottom:1px solid rgba(201,168,76,.05); }
+    .meta-row:last-child { border-bottom:none; }
+    .meta-row span:last-child { color:var(--gold-dim); }
 
-  <!-- Animations -->
-  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    .timeline { position:relative; }
+    .timeline::before { content:''; position:absolute; left:0; top:0; bottom:0; width:1px; background:linear-gradient(to bottom,var(--gold-dim),transparent); }
+    .tl-section { margin-bottom:3rem; }
+    .tl-section-title { font-family:var(--font-display); font-size:.95rem; font-weight:600; letter-spacing:.08em; color:var(--gold); margin-bottom:1.25rem; padding-left:1.5rem; position:relative; }
+    .tl-section-title::before { content:''; position:absolute; left:-4px; top:50%; transform:translateY(-50%); width:9px; height:9px; background:var(--gold); border-radius:50%; box-shadow:0 0 8px var(--gold); }
+    .tl-item { padding:1.4rem 1.4rem 1.4rem 2.4rem; border:1px solid rgba(201,168,76,.08); background:var(--obsidian-2); margin-bottom:.9rem; position:relative; transition:border-color .3s; }
+    .tl-item:hover { border-color:rgba(201,168,76,.25); }
+    .tl-item::before { content:''; position:absolute; left:-5px; top:1.5rem; width:9px; height:9px; background:var(--obsidian-3); border:1px solid var(--gold-dim); border-radius:50%; }
+    .tl-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:.3rem; }
+    .tl-title { font-family:var(--font-display); font-size:.92rem; font-weight:600; letter-spacing:.04em; color:var(--white); }
+    .tl-date { font-family:var(--font-mono); font-size:.6rem; letter-spacing:.1em; color:var(--gold-dim); white-space:nowrap; flex-shrink:0; margin-top:.1rem; }
+    .tl-org { font-family:var(--font-mono); font-size:.7rem; color:var(--gold); letter-spacing:.08em; margin-bottom:.65rem; }
+    .tl-desc { font-size:.84rem; line-height:1.75; color:#9a9790; }
+    .tl-chips { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.65rem; }
+    .chip { font-family:var(--font-mono); font-size:.58rem; letter-spacing:.1em; padding:.15rem .5rem; background:rgba(201,168,76,.06); border:1px solid rgba(201,168,76,.14); color:var(--muted); text-transform:uppercase; }
 
-  <link rel="stylesheet" href="css/style.css">
+    @media (max-width:900px) { .resume-layout { grid-template-columns:1fr; } .dl-card { position:static; } }
+  </style>
 </head>
 <body>
+  <nav>
+    <a href="index.html" class="nav-logo">DM</a>
+    <ul class="nav-links">
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="resume.html" class="active">Resume</a></li>
+      <li><a href="labs.html">Cyber Labs</a></li>
+      <li><a href="terminal.html">Terminal</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
 
-<nav class="main-navbar">
-  <div class="nav-container">
-    <a href="index.html" class="nav-logo">Daniel Michael</a>
-
-    <div class="nav-links">
-      <a href="projects.html" class="nav-btn">Projects</a>
-      <a href="resume.html" class="nav-btn">Resume</a>
-      <a href="labs.html" class="nav-btn">Cyber Labs</a>
-      <a href="terminal.html" class="nav-btn">Terminal</a>
-      <a href="contact.html" class="nav-btn">Contact</a>
+  <div class="page-hero">
+    <div class="page-hero-grid"></div>
+    <div class="page-hero-inner">
+      <p class="page-tag">03 // Resume</p>
+      <h1 class="page-title">Experience &amp; <span>Background</span></h1>
+      <p class="page-desc">Work-study, robotics, and programming projects. Updated as new experience is completed.</p>
     </div>
   </div>
-</nav>
 
-<section class="hero text-center" data-aos="fade-down">
-  <h1 data-aos="zoom-in">My Resume</h1>
-  <p data-aos="fade-up">View or download my resume below.
-  Here is my current resume. 
-  It includes cybersecurity work, programming experience, robotics competitions, and work-study assignments.
-  I regularly update it as new projects, labs, and certifications are completed throughout the year.
-  </p>
-</section>
+  <div class="page-content">
+    <div class="resume-layout reveal">
+      <div class="timeline">
 
-<section class="container">
-  <div class="project-card" data-aos="fade-up">
-    <iframe src="resume.pdf" width="100%" height="800px"></iframe>
+        <div class="tl-section">
+          <p class="tl-section-title">Education</p>
+          <div class="tl-item">
+            <div class="tl-head"><span class="tl-title">Cristo Rey Atlanta Jesuit High School</span><span class="tl-date">2025 – Present</span></div>
+            <p class="tl-org">Sophomore · Class of 2028 · Atlanta, GA</p>
+            <p class="tl-desc">College-preparatory high school. Planning to pursue computer science and cybersecurity in college. Coursework in Mathematics, Chemistry, Computer Science, and English.</p>
+            <div class="tl-chips"><span class="chip">Mathematics</span><span class="chip">Chemistry</span><span class="chip">Computer Science</span><span class="chip">English</span></div>
+          </div>
+        </div>
+
+        <div class="tl-section">
+          <p class="tl-section-title">Work Experience</p>
+          <div class="tl-item">
+            <div class="tl-head"><span class="tl-title">Corporate Work Study Intern</span><span class="tl-date">2025 – Present</span></div>
+            <p class="tl-org">Georgia Tech · Dean of Engineering Office · Atlanta, GA</p>
+            <p class="tl-desc">Placed at Georgia Tech's Dean of Engineering Office through Cristo Rey Atlanta Jesuit's Corporate Work Study Program. Gained hands-on exposure to professional workplace operations within a top engineering institution.</p>
+            <div class="tl-chips"><span class="chip">Professional Development</span><span class="chip">Georgia Tech</span><span class="chip">Engineering Operations</span></div>
+          </div>
+        </div>
+
+        <div class="tl-section">
+          <p class="tl-section-title">Extracurriculars</p>
+          <div class="tl-item">
+            <div class="tl-head"><span class="tl-title">FTC Robotics · Programmer</span><span class="tl-date">2025 – Present</span></div>
+            <p class="tl-org">FIRST Tech Challenge · Atlanta-Marist League · 13th Place</p>
+            <p class="tl-desc">Programmer for the school's FTC robotics team. Wrote and debugged autonomous and teleop control programs. The team placed 13th in the Atlanta-Marist League.</p>
+            <div class="tl-chips"><span class="chip">Java</span><span class="chip">FTC SDK</span><span class="chip">Robotics</span><span class="chip">Autonomous</span></div>
+          </div>
+        </div>
+
+        <div class="tl-section">
+          <p class="tl-section-title">Projects</p>
+          <div class="tl-item">
+            <div class="tl-head"><span class="tl-title">Password Strength Analyzer</span><span class="tl-date">2025 – Present</span></div>
+            <p class="tl-org">Python · Security Tool</p>
+            <p class="tl-desc">Python tool that analyzes password strength using entropy calculations, pattern detection, and SIEM-integrated JSON logging.</p>
+            <div class="tl-chips"><span class="chip">Python</span><span class="chip">Regex</span><span class="chip">Security</span><span class="chip">SIEM</span></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-head"><span class="tl-title">Python Port Scanner</span><span class="tl-date">2025 – Present</span></div>
+            <p class="tl-org">Python · Network Security Tool</p>
+            <p class="tl-desc">TCP port scanning tool with service identification and Blue Team SIEM dashboard integration.</p>
+            <div class="tl-chips"><span class="chip">Python</span><span class="chip">TCP/IP</span><span class="chip">Networking</span></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-head"><span class="tl-title">Arduino CyberDoor v1</span><span class="tl-date">2025 – Present</span></div>
+            <p class="tl-org">Arduino · Embedded Security · Prototype</p>
+            <p class="tl-desc">Physical access control system with keypad PIN auth, servo lock, and brute-force lockout logic.</p>
+            <div class="tl-chips"><span class="chip">Arduino</span><span class="chip">C++</span><span class="chip">Embedded</span><span class="chip">Hardware</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="dl-card">
+        <p class="dl-title">Download Resume</p>
+        <p class="dl-sub">Full PDF resume including all experience, projects, and skills.</p>
+        <a href="resume.pdf" download class="btn-dl">↓ Download PDF</a>
+        <a href="resume.pdf" target="_blank" class="btn-sec">↗ View in Browser</a>
+        <div class="dl-meta">
+          <div class="meta-row"><span>Format</span><span>PDF</span></div>
+          <div class="meta-row"><span>Updated</span><span>2026</span></div>
+          <div class="meta-row"><span>Pages</span><span>1</span></div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div style="text-align:center; margin-top:20px;" data-aos="zoom-in">
-    <a class="project-btn" href="resume.pdf" download>Download Resume (PDF)</a>
-  </div>
-</section>
-
-<footer class="text-center py-3">
-  <p>© 2026 Daniel Michael</p>
-</footer>
-
-<!-- Animation Engine -->
-<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-<script>
-AOS.init({
-  duration: 1000,
-  once: true,
-  easing: 'ease-out-cubic'
-});
-</script>
-
-<script>
-// Automatically highlight the active navbar link
-<script>
-  const links = document.querySelectorAll(".nav-btn");
-  const current = location.pathname.split("/").pop();
-
-  links.forEach(link => {
-    if (link.getAttribute("href") === current) {
-      link.classList.add("active");
-    }
-  });
-</script>
-
-  
+  <footer>
+    <span class="footer-name">Daniel Michael</span>
+    <div class="footer-links"><a href="index.html">Home</a><a href="projects.html">Projects</a><a href="contact.html">Contact</a><a href="https://github.com/danielmichael20208" target="_blank">GitHub</a></div>
+    <span class="footer-copy">© 2026 — All rights reserved</span>
+  </footer>
+  <script>
+    const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');}),{threshold:.05});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  </script>
 </body>
 </html>

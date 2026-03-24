@@ -1,112 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact - Daniel Michael</title>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact | Daniel Michael</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .contact-layout { display:grid; grid-template-columns:1fr 360px; gap:3.5rem; align-items:start; }
+    .field-group { display:flex; flex-direction:column; gap:.45rem; margin-bottom:1.1rem; }
+    .field-label { font-family:var(--font-mono); font-size:.63rem; letter-spacing:.2em; color:var(--gold-dim); text-transform:uppercase; }
+    .field-input,.field-textarea { background:var(--obsidian-2); border:1px solid rgba(201,168,76,.15); color:var(--white); font-family:var(--font-body); font-size:.9rem; font-weight:300; padding:.85rem 1rem; outline:none; transition:border-color .25s; width:100%; }
+    .field-input::placeholder,.field-textarea::placeholder { color:#4a4840; }
+    .field-input:focus,.field-textarea:focus { border-color:rgba(201,168,76,.5); }
+    .field-textarea { resize:vertical; min-height:150px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; }
+    .btn-submit { font-family:var(--font-mono); font-size:.76rem; letter-spacing:.18em; text-transform:uppercase; color:var(--obsidian); background:var(--gold); border:none; padding:.95rem 2.5rem; cursor:pointer; position:relative; overflow:hidden; transition:background .25s; margin-top:.5rem; }
+    .btn-submit::before { content:''; position:absolute; inset:0; background:var(--gold-light); transform:translateX(-100%); transition:transform .3s; }
+    .btn-submit:hover::before { transform:translateX(0); }
+    .btn-submit span { position:relative; z-index:1; }
+    #form-status { font-family:var(--font-mono); font-size:.73rem; letter-spacing:.1em; padding:.7rem 1rem; display:none; margin-top:.75rem; }
+    #form-status.success { color:var(--green); border:1px solid rgba(61,220,132,.2); }
+    #form-status.error   { color:#dc6060;     border:1px solid rgba(220,96,96,.2);  }
 
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    .info-col { display:flex; flex-direction:column; gap:.9rem; }
+    .info-card { border:1px solid rgba(201,168,76,.12); background:var(--obsidian-2); padding:1.4rem; position:relative; overflow:hidden; transition:border-color .3s; }
+    .info-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--gold); transition:height .3s; }
+    .info-card:hover { border-color:rgba(201,168,76,.35); }
+    .info-card:hover::before { height:100%; }
+    .info-icon { margin-bottom:.5rem; display:flex; align-items:center; }
+    .info-icon svg { width:20px; height:20px; opacity:.7; }
+    .info-icon-emoji { font-size:1.2rem; }
+    .info-label { font-family:var(--font-mono); font-size:.58rem; letter-spacing:.2em; color:var(--gold-dim); text-transform:uppercase; margin-bottom:.3rem; }
+    .info-value { font-family:var(--font-mono); font-size:.78rem; color:var(--white); }
+    .info-value a { color:var(--gold); text-decoration:none; transition:color .2s; }
+    .info-value a:hover { color:var(--gold-light); }
+    .info-sub { font-family:var(--font-mono); font-size:.63rem; color:var(--muted); margin-top:.2rem; }
 
-<!-- Animations -->
-<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    .avail-card { border:1px solid rgba(61,220,132,.15); background:rgba(61,220,132,.03); padding:1.1rem 1.4rem; display:flex; align-items:center; gap:.9rem; }
+    .avail-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); flex-shrink:0; animation:pdot 2s ease-in-out infinite; }
+    @keyframes pdot { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .avail-text { font-family:var(--font-mono); font-size:.7rem; color:var(--green); letter-spacing:.08em; }
 
-<!-- Custom CSS -->
-<link rel="stylesheet" href="css/style.css">
+    .open-to { font-size:.82rem; line-height:1.8; color:var(--muted); font-family:var(--font-mono); }
+    .open-to li { list-style:none; padding:.18rem 0; }
+    .open-to li::before { content:'→ '; color:var(--gold-dim); }
+
+    @media (max-width:900px) { .contact-layout { grid-template-columns:1fr; } .form-row { grid-template-columns:1fr; } }
+  </style>
 </head>
 <body>
+  <nav>
+    <a href="index.html" class="nav-logo">DM</a>
+    <ul class="nav-links">
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="resume.html">Resume</a></li>
+      <li><a href="labs.html">Cyber Labs</a></li>
+      <li><a href="terminal.html">Terminal</a></li>
+      <li><a href="contact.html" class="active">Contact</a></li>
+    </ul>
+  </nav>
 
-<!-- Navbar -->
-<nav class="main-navbar">
-  <div class="nav-container">
-    <a href="index.html" class="nav-logo">Daniel Michael</a>
-
-    <div class="nav-links">
-      <a href="projects.html" class="nav-btn">Projects</a>
-      <a href="resume.html" class="nav-btn">Resume</a>
-      <a href="labs.html" class="nav-btn">Cyber Labs</a>
-      <a href="terminal.html" class="nav-btn">Terminal</a>
-      <a href="contact.html" class="nav-btn">Contact</a>
+  <div class="page-hero">
+    <div class="page-hero-grid"></div>
+    <div class="page-hero-inner">
+      <p class="page-tag">06 // Contact</p>
+      <h1 class="page-title">Get In <span>Touch</span></h1>
+      <p class="page-desc">Feel free to reach out about cybersecurity, robotics, collaboration, or anything tech-related. I typically respond within 24–48 hours.</p>
     </div>
   </div>
-</nav>
 
-<!-- Hero / Banner -->
-<section class="hero text-center d-flex align-items-center justify-content-center" data-aos="fade-down">
-  <div class="container">
-    <h1 class="display-4" data-aos="zoom-in">Get in Touch</h1>
-    <p class="lead" data-aos="fade-up">Fill out the form below or reach me via email or GitHub.
-    I’m always interested in talking with people in cybersecurity, robotics, and engineering.
-    Whether it’s advice, collaboration, internship opportunities, or just talking tech — feel free to reach out.
-    I typically respond within 24–48 hours.
-    </p>
-  </div>
-</section>
+  <div class="page-content">
+    <div class="contact-layout reveal">
 
-<!-- Contact Form Section -->
-<section class="container mt-5 pt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-
-      <div class="card p-4 shadow-sm" data-aos="fade-up">
-        <h3 class="card-title mb-4 text-center">Contact Me</h3>
-
-        <form action="https://formspree.io/f/xkogdqqq" method="POST">
-          <div class="mb-3">
-            <label for="name" class="form-label">Name</label>
-            <input type="text" class="form-control" name="name" id="name" required>
+      <!-- Form -->
+      <div>
+        <p class="section-label">Send a Message</p>
+        <form id="contact-form" action="https://formspree.io/f/your-form-id" method="POST">
+          <div class="form-row">
+            <div class="field-group">
+              <label class="field-label" for="name">Name</label>
+              <input class="field-input" type="text" id="name" name="name" placeholder="Your name" required />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="email">Email</label>
+              <input class="field-input" type="email" id="email" name="email" placeholder="your@email.com" required />
+            </div>
           </div>
-
-          <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" name="_replyto" id="email" required>
+          <div class="field-group">
+            <label class="field-label" for="subject">Subject</label>
+            <input class="field-input" type="text" id="subject" name="subject" placeholder="What's this about?" />
           </div>
-
-          <div class="mb-3">
-            <label for="message" class="form-label">Message</label>
-            <textarea class="form-control" name="message" id="message" rows="5" required></textarea>
+          <div class="field-group">
+            <label class="field-label" for="message">Message</label>
+            <textarea class="field-textarea" id="message" name="message" placeholder="Your message..." required></textarea>
           </div>
-
-          <button type="submit" class="btn btn-primary w-100">Send Message</button>
+          <div id="form-status"></div>
+          <button type="submit" class="btn-submit"><span>Send Message →</span></button>
         </form>
       </div>
 
-      <div class="mt-4 text-center" data-aos="fade-up" data-aos-delay="150">
-        <p>Email: <a href="mailto:Daniel.Michael20208@gmail.com">Daniel.Michael20208@gmail.com</a></p>
-        <p>GitHub: <a href="https://github.com/danielmichael20208" target="_blank">github.com/danielmichael20208</a></p>
-      </div>
+      <!-- Sidebar -->
+      <div class="info-col">
+        <div class="avail-card">
+          <div class="avail-dot"></div>
+          <span class="avail-text">Available — responds in 24–48 hrs</span>
+        </div>
 
+        <div class="info-card">
+          <div class="info-icon"><span class="info-icon-emoji">✉️</span></div>
+          <p class="info-label">Email</p>
+          <p class="info-value"><a href="mailto:Daniel.Michael20208@gmail.com">Daniel.Michael20208@gmail.com</a></p>
+          <p class="info-sub">Best for formal inquiries</p>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <!-- GitHub Invertocat (official white) -->
+            <svg width="20" height="20" viewBox="0 0 98 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M41.4395 69.3848C28.8066 67.8535 19.9062 58.7617 19.9062 46.9902C19.9062 42.2051 21.6289 37.0371 24.5 33.5918C23.2559 30.4336 23.4473 23.7344 24.8828 20.959C28.7109 20.4805 33.8789 22.4902 36.9414 25.2656C40.5781 24.1172 44.4062 23.543 49.0957 23.543C53.7852 23.543 57.6133 24.1172 61.0586 25.1699C64.0254 22.4902 69.2891 20.4805 73.1172 20.959C74.457 23.543 74.6484 30.2422 73.4043 33.4961C76.4668 37.1328 78.0937 42.0137 78.0937 46.9902C78.0937 58.7617 69.1934 67.6621 56.3691 69.2891C59.623 71.3945 61.8242 75.9883 61.8242 81.252L61.8242 91.2051C61.8242 94.0762 64.2168 95.7031 67.0879 94.5547C84.4102 87.9512 98 70.6289 98 49.1914C98 22.1074 75.9883 0 48.9043 0C21.8203 0 0 22.1074 0 49.1914C0 70.4375 13.4941 88.0469 31.6777 94.6504C34.2617 95.6074 36.75 93.8848 36.75 91.3008L36.75 83.6445C35.4102 84.2188 33.6875 84.6016 32.1562 84.6016C25.8398 84.6016 22.1074 81.1563 19.4277 74.7441C18.375 72.1602 17.2266 70.6289 15.0254 70.3418C13.877 70.2461 13.4941 69.7676 13.4941 69.1934C13.4941 68.0449 15.4082 67.1836 17.3223 67.1836C20.0977 67.1836 22.4902 68.9063 24.9785 72.4473C26.8926 75.2227 28.9023 76.4668 31.2949 76.4668C33.6875 76.4668 35.2187 75.6055 37.4199 73.4043C39.0469 71.7773 40.291 70.3418 41.4395 69.3848Z" fill="white"/>
+            </svg>
+          </div>
+          <p class="info-label">GitHub</p>
+          <p class="info-value"><a href="https://github.com/danielmichael20208" target="_blank">github.com/danielmichael20208</a></p>
+          <p class="info-sub">Projects, source code, portfolio</p>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon"><span class="info-icon-emoji">🤝</span></div>
+          <p class="info-label">Open To</p>
+          <ul class="open-to">
+            <li>Cybersecurity advice &amp; mentorship</li>
+            <li>Internship opportunities</li>
+            <li>Collaboration on projects</li>
+            <li>Talking tech</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
-</section>
 
-<footer class="bg-dark text-white text-center py-3 mt-5">
-  <p>© 2026 Daniel Michael</p>
-</footer>
+  <footer>
+    <span class="footer-name">Daniel Michael</span>
+    <div class="footer-links"><a href="index.html">Home</a><a href="projects.html">Projects</a><a href="labs.html">Labs</a><a href="https://github.com/danielmichael20208" target="_blank">GitHub</a></div>
+    <span class="footer-copy">© 2026 — All rights reserved</span>
+  </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Animation Engine -->
-<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-<script>
-AOS.init({
-  duration: 1000,
-  once: true,
-  easing: 'ease-out-cubic'
-});
-</script>
-
-<script>
-  const links = document.querySelectorAll(".nav-btn");
-  const current = location.pathname.split("/").pop();
-
-  links.forEach(link => {
-    if (link.getAttribute("href") === current) {
-      link.classList.add("active");
-    }
-  });
-</script>
-
+  <script>
+    const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');}),{threshold:.05});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+    const form=document.getElementById('contact-form');
+    const status=document.getElementById('form-status');
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();
+      try{
+        const res=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}});
+        if(res.ok){status.textContent='[OK] Message sent! I\'ll reply within 48 hours.';status.className='success';status.style.display='block';form.reset();}
+        else throw new Error();
+      }catch{status.textContent='[ERR] Send failed. Email me directly: Daniel.Michael20208@gmail.com';status.className='error';status.style.display='block';}
+    });
+  </script>
 </body>
 </html>
-
