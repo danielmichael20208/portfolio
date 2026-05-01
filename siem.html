@@ -42,6 +42,24 @@
     .last-updated-wrap { margin-left: auto; font-family: var(--font-mono); font-size: .65rem; color: var(--muted); }
     .last-updated-wrap span { color: var(--gold-dim); }
 
+    .filter-wrap { display: flex; align-items: center; gap: .6rem; }
+    .source-filter {
+      font-family: var(--font-mono); font-size: .65rem; letter-spacing: .1em;
+      text-transform: uppercase; padding: .4rem .7rem .4rem .8rem;
+      background: var(--obsidian); border: 1px solid rgba(201,168,76,.3);
+      color: var(--muted); cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%237a6030'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right .6rem center;
+      padding-right: 1.6rem; transition: border-color .2s, color .2s;
+      min-width: 140px;
+    }
+    .source-filter:focus { outline: none; border-color: var(--gold); }
+    .source-filter option { background: var(--obsidian-3); color: var(--white); }
+    .source-filter.filtered {
+      border-color: var(--gold); color: var(--gold);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23c9a84c'/%3E%3C/svg%3E");
+    }
+
     .stats-grid {
       display: grid; grid-template-columns: repeat(4, 1fr);
       gap: 1rem; margin-bottom: 2rem;
@@ -169,6 +187,13 @@
         <span id="refresh-status" class="refresh-status">ON</span>
       </div>
       <button id="manual-refresh" class="ctrl-btn">Refresh Now</button>
+      <span class="ctrl-sep">|</span>
+      <div class="filter-wrap">
+        <span class="ctrl-label">Source</span>
+        <select id="source-filter" class="source-filter">
+          <option value="all">All Sources</option>
+        </select>
+      </div>
       <div class="last-updated-wrap">Last updated: <span id="last-updated">—</span></div>
     </div>
 
@@ -182,7 +207,7 @@
       <div class="stat-box">
         <div class="stat-box-label">Total Events</div>
         <div class="stat-box-value" id="stat-total">--</div>
-        <div class="stat-box-sub">across all sources</div>
+        <div class="stat-box-sub" id="stat-total-sub">across all sources</div>
       </div>
       <div class="stat-box">
         <div class="stat-box-label">Active Alerts</div>
@@ -192,7 +217,7 @@
       <div class="stat-box">
         <div class="stat-box-label">Sources Online</div>
         <div class="stat-box-value" id="stat-sources">--</div>
-        <div class="stat-box-sub">unique log sources</div>
+        <div class="stat-box-sub" id="stat-sources-sub">unique log sources</div>
       </div>
     </div>
 

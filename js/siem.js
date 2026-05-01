@@ -8,6 +8,7 @@ const RED      = '#e05050';
 let autoRefresh    = true;
 let refreshInterval = null;
 let cachedEvents   = [];
+let activeSource   = 'all';
 
 let levelChart    = null;
 let sourceChart   = null;
@@ -26,9 +27,42 @@ function computeScore(events) {
   return Math.max(0, 100 - total);
 }
 
+// ── Source filter dropdown ─────────────────────────────────────────────────
+function populateSourceFilter(events) {
+  const select  = document.getElementById('source-filter');
+  const sources = [...new Set(events.map(e => e.source))].sort();
+
+  // Rebuild only when the source list changes
+  const existing = [...select.options].slice(1).map(o => o.value);
+  if (JSON.stringify(sources) === JSON.stringify(existing)) return;
+
+  const prev = select.value;
+  select.innerHTML = '<option value="all">All Sources</option>';
+  sources.forEach(src => {
+    const opt = document.createElement('option');
+    opt.value = src;
+    opt.textContent = src;
+    select.appendChild(opt);
+  });
+
+  // Restore previous selection if still present
+  select.value = sources.includes(prev) ? prev : 'all';
+  activeSource  = select.value;
+  select.classList.toggle('filtered', activeSource !== 'all');
+}
+
+// ── Apply filter and re-render from cache ──────────────────────────────────
+function applyFilter() {
+  const events = activeSource === 'all'
+    ? cachedEvents
+    : cachedEvents.filter(e => e.source === activeSource);
+  render(events);
+}
+
 // ── Render ─────────────────────────────────────────────────────────────────
 function render(events) {
-  cachedEvents = events;
+  const isFiltered   = activeSource !== 'all';
+  const totalSources = new Set(cachedEvents.map(e => e.source)).size;
 
   // Score
   const score = computeScore(events);
@@ -46,10 +80,17 @@ function render(events) {
   }
 
   // Stats
-  const alertCount = events.filter(e => e.level === 'ALERT' || e.level === 'WARN').length;
-  document.getElementById('stat-total').textContent   = events.length;
-  document.getElementById('stat-alerts').textContent  = alertCount;
-  document.getElementById('stat-sources').textContent = new Set(events.map(e => e.source)).size;
+  const alertCount  = events.filter(e => e.level === 'ALERT' || e.level === 'WARN').length;
+  const sourceCount = new Set(events.map(e => e.source)).size;
+
+  document.getElementById('stat-total').textContent    = events.length;
+  document.getElementById('stat-alerts').textContent   = alertCount;
+  document.getElementById('stat-sources').textContent  = sourceCount;
+
+  document.getElementById('stat-total-sub').textContent =
+    isFiltered ? `from ${activeSource}` : 'across all sources';
+  document.getElementById('stat-sources-sub').textContent =
+    isFiltered ? `of ${totalSources} total` : 'unique log sources';
 
   // Recent alerts list (WARN + ALERT, newest first, capped at 8)
   const alertList = document.getElementById('alert-list');
@@ -59,9 +100,9 @@ function render(events) {
     alertList.innerHTML = '<li class="alert-empty">No warnings or alerts — system nominal</li>';
   } else {
     flagged.forEach(e => {
-      const li = document.createElement('li');
+      const li  = document.createElement('li');
       li.className = 'alert-item';
-      const ts = new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const ts  = new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       li.innerHTML =
         `<span class="alert-badge badge-${e.level.toLowerCase()}">${e.level}</span>` +
         `<span class="alert-src">${e.source}</span>` +
@@ -72,14 +113,14 @@ function render(events) {
   }
 
   // Aggregates for charts
-  const levelCounts   = {};
-  const sourceCounts  = {};
+  const levelCounts    = {};
+  const sourceCounts   = {};
   const timelineCounts = {};
   events.forEach(e => {
-    levelCounts[e.level]   = (levelCounts[e.level]   || 0) + 1;
-    sourceCounts[e.source] = (sourceCounts[e.source] || 0) + 1;
+    levelCounts[e.level]    = (levelCounts[e.level]    || 0) + 1;
+    sourceCounts[e.source]  = (sourceCounts[e.source]  || 0) + 1;
     const bucket = e.timestamp.slice(0, 13) + ':00';
-    timelineCounts[bucket] = (timelineCounts[bucket] || 0) + 1;
+    timelineCounts[bucket]  = (timelineCounts[bucket]  || 0) + 1;
   });
 
   drawLevelChart(levelCounts);
@@ -183,7 +224,9 @@ function showEmpty() {
   ['security-score','stat-total','stat-alerts','stat-sources'].forEach(id => {
     document.getElementById(id).textContent = '0';
   });
-  document.getElementById('risk-badge').textContent = '—';
+  document.getElementById('risk-badge').textContent    = '—';
+  document.getElementById('stat-total-sub').textContent   = 'across all sources';
+  document.getElementById('stat-sources-sub').textContent = 'unique log sources';
   document.getElementById('alert-list').innerHTML =
     '<li class="alert-empty">No event data — run a Python tool to generate logs</li>';
   document.getElementById('last-updated').textContent = 'No data';
@@ -194,7 +237,9 @@ async function loadAndRender() {
   try {
     const events = await fetchLogs();
     if (!Array.isArray(events) || events.length === 0) { showEmpty(); return; }
-    render(events);
+    cachedEvents = events;
+    populateSourceFilter(events);
+    applyFilter();
   } catch (_) {
     showEmpty();
   }
@@ -214,6 +259,12 @@ document.getElementById('auto-refresh-toggle').addEventListener('change', e => {
 
 document.getElementById('manual-refresh').addEventListener('click', loadAndRender);
 
+document.getElementById('source-filter').addEventListener('change', e => {
+  activeSource = e.target.value;
+  e.target.classList.toggle('filtered', activeSource !== 'all');
+  applyFilter();
+});
+
 document.getElementById('export-png').addEventListener('click', () => {
   const link = document.createElement('a');
   link.download = 'siem-timeline.png';
@@ -222,14 +273,17 @@ document.getElementById('export-png').addEventListener('click', () => {
 });
 
 document.getElementById('export-csv').addEventListener('click', () => {
-  if (!cachedEvents.length) return;
+  const events = activeSource === 'all'
+    ? cachedEvents
+    : cachedEvents.filter(e => e.source === activeSource);
+  if (!events.length) return;
   const rows = ['timestamp,level,source,event_type,message']
-    .concat(cachedEvents.map(e =>
+    .concat(events.map(e =>
       [e.timestamp, e.level, e.source, e.event_type || '', `"${(e.message || '').replace(/"/g, '""')}"`].join(',')
     ));
   const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
   const link = document.createElement('a');
-  link.download = 'siem-events.csv';
+  link.download = `siem-events${activeSource !== 'all' ? '-' + activeSource : ''}.csv`;
   link.href = URL.createObjectURL(blob);
   link.click();
   URL.revokeObjectURL(link.href);
