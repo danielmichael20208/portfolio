@@ -1,1 +1,25 @@
-
+[
+  {"timestamp":"2026-04-30T08:00:12Z","level":"INFO","source":"Python-Scanner","event_type":"scan_start","message":"Scan initiated on 192.168.1.0/24"},
+  {"timestamp":"2026-04-30T08:01:20Z","level":"INFO","source":"Python-Scanner","event_type":"port_open","message":"Port 22 open on 192.168.1.1"},
+  {"timestamp":"2026-04-30T08:01:45Z","level":"INFO","source":"Python-Scanner","event_type":"port_open","message":"Ports 80, 443 open on 192.168.1.1"},
+  {"timestamp":"2026-04-30T08:02:10Z","level":"WARN","source":"Python-Scanner","event_type":"suspicious_port","message":"Port 8080 open on 192.168.1.5 — uncommon port detected"},
+  {"timestamp":"2026-04-30T08:03:00Z","level":"INFO","source":"Python-Analyzer","event_type":"entropy_check","message":"Password entropy check passed — strong (entropy=4.2)"},
+  {"timestamp":"2026-04-30T08:04:15Z","level":"WARN","source":"Python-Analyzer","event_type":"weak_password","message":"Weak password detected — low entropy (entropy=1.1)"},
+  {"timestamp":"2026-04-30T09:00:30Z","level":"INFO","source":"Arduino-Door","event_type":"access_granted","message":"Door access granted — correct PIN entered"},
+  {"timestamp":"2026-04-30T09:22:10Z","level":"WARN","source":"Arduino-Door","event_type":"failed_pin","message":"Failed PIN attempt (1/3)"},
+  {"timestamp":"2026-04-30T09:22:35Z","level":"WARN","source":"Arduino-Door","event_type":"failed_pin","message":"Failed PIN attempt (2/3)"},
+  {"timestamp":"2026-04-30T09:22:58Z","level":"ALERT","source":"Arduino-Door","event_type":"lockout","message":"Lockout triggered — 3 consecutive failed PIN attempts"},
+  {"timestamp":"2026-04-30T10:05:00Z","level":"INFO","source":"Python-Scanner","event_type":"scan_complete","message":"Scan complete — 14 hosts found, 3 flagged"},
+  {"timestamp":"2026-04-30T10:07:22Z","level":"ALERT","source":"Python-Scanner","event_type":"critical_port","message":"Port 23 (Telnet) open on 192.168.1.12 — plaintext protocol risk"},
+  {"timestamp":"2026-04-30T11:30:00Z","level":"INFO","source":"Arduino-Door","event_type":"access_granted","message":"Door access granted — correct PIN entered"},
+  {"timestamp":"2026-04-30T12:00:00Z","level":"INFO","source":"Python-Analyzer","event_type":"batch_check","message":"Batch check: 8 passwords analyzed"},
+  {"timestamp":"2026-04-30T12:00:05Z","level":"WARN","source":"Python-Analyzer","event_type":"dictionary_match","message":"2 passwords matched common dictionary words"},
+  {"timestamp":"2026-04-30T13:45:00Z","level":"INFO","source":"Python-Scanner","event_type":"scan_start","message":"Scheduled scan started"},
+  {"timestamp":"2026-04-30T13:46:15Z","level":"INFO","source":"Python-Scanner","event_type":"port_open","message":"Ports 22, 80, 443 open on 192.168.1.1"},
+  {"timestamp":"2026-04-30T14:10:00Z","level":"ALERT","source":"Arduino-Door","event_type":"motion_alert","message":"Motion detected outside scheduled access hours"},
+  {"timestamp":"2026-04-30T14:30:00Z","level":"INFO","source":"Python-Analyzer","event_type":"entropy_check","message":"Password entropy check passed — strong (entropy=3.8)"},
+  {"timestamp":"2026-04-30T15:00:00Z","level":"INFO","source":"Python-Scanner","event_type":"upload","message":"Scan log uploaded to portfolio successfully"},
+  {"timestamp":"2026-04-30T15:01:10Z","level":"INFO","source":"Python-Analyzer","event_type":"upload","message":"Analyzer log uploaded to portfolio successfully"},
+  {"timestamp":"2026-04-30T15:45:00Z","level":"WARN","source":"Python-Scanner","event_type":"suspicious_port","message":"Port 3389 (RDP) open on 192.168.1.20 — remote access exposure"},
+  {"timestamp":"2026-04-30T16:00:00Z","level":"INFO","source":"Arduino-Door","event_type":"access_granted","message":"Door access granted — correct PIN entered"}
+]
