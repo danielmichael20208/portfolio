@@ -135,9 +135,29 @@
         </div>
       </div>
 
-      <div class="proj-card empty">
-        <p class="empty-label">Coming Soon</p>
-        <p class="empty-name">More projects in progress...</p>
+      <div class="proj-card">
+        <div class="proj-head">
+          <span class="proj-icon">🔓</span>
+          <span class="proj-title">Ethical Hash Cracker</span>
+          <span class="badge badge-live">Live</span>
+        </div>
+        <p class="proj-desc">A Python tool that recovers plaintext passwords from hashes using dictionary and brute-force attacks — for authorized security testing and learning about weak credentials.</p>
+        <div class="proj-tags"><span class="tag">Python</span><span class="tag">Cryptography</span><span class="tag">Hashing</span><span class="tag">Red Team</span></div>
+        <ul class="proj-features">
+          <li>Auto-detects MD5, SHA1, SHA256, SHA512</li>
+          <li>Built-in wordlist of ~300 breached passwords</li>
+          <li>Optional brute-force fallback (configurable length)</li>
+          <li>Exports crack results to SIEM dashboard</li>
+        </ul>
+        <div class="lab-box">
+          <p class="lab-box-title">Lab Integration</p>
+          <div class="lab-row"><span>Red Team</span><span>Hash cracking / credential recovery</span></div>
+          <div class="lab-row"><span>Blue Team</span><span>Identify weak / reused passwords</span></div>
+          <div class="lab-row"><span>Telemetry</span><span>Crack events → SIEM dashboard</span></div>
+        </div>
+        <div class="proj-foot">
+          <a href="https://github.com/danielmichael20208/hash-cracker" target="_blank" class="proj-link">View on GitHub</a>
+        </div>
       </div>
     </div>
   </div>
