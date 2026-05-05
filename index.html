@@ -65,7 +65,7 @@
     .prog-pct { font-family:var(--font-mono); font-size:.65rem; color:var(--gold); white-space:nowrap; }
 
     /* System status */
-    .status-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .status-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
     .status-card { border:1px solid rgba(201,168,76,.12); background:var(--obsidian-2); padding:1.5rem; transition:border-color .3s; }
     .status-card:hover { border-color:rgba(201,168,76,.3); }
     .sc-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem; }
@@ -78,11 +78,19 @@
     .scb-live  { color:var(--green); } .scb-wip { color:var(--gold); } .scb-proto { color:#9060c0; }
     .sc-desc { font-family:var(--font-mono); font-size:.7rem; color:var(--muted); line-height:1.5; }
 
+    .skills-inner { max-width:1100px; margin:0 auto; padding:0 4rem; }
     @media (max-width:768px) {
       .hero { padding:5rem 1.5rem 4rem; }
       .about-grid { grid-template-columns:1fr; gap:2.5rem; }
       .pipeline { grid-template-columns:1fr; }
+      .status-grid { grid-template-columns:1fr 1fr; }
+      .skills-inner { padding:0 1.5rem; }
+    }
+    @media (max-width:480px) {
+      .hero { padding:4.5rem 1rem 3rem; }
       .status-grid { grid-template-columns:1fr; }
+      .hero-badges { gap:.6rem; }
+      .hero-badge { font-size:.62rem; padding:.3rem .7rem; }
     }
   </style>
 </head>
@@ -90,6 +98,7 @@
 
   <nav>
     <a href="index.html" class="nav-logo">DM</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
     <ul class="nav-links">
       <li><a href="projects.html">Projects</a></li>
       <li><a href="resume.html">Resume</a></li>
@@ -135,7 +144,7 @@
   </section>
 
   <div class="skills-bg">
-    <div class="reveal" style="max-width:1100px;margin:0 auto;padding:0 4rem;">
+    <div class="reveal skills-inner">
       <p class="section-label">02 // Skills</p>
       <h2 class="section-title">Cybersecurity Skill Pipeline</h2>
       <div class="pipeline">
@@ -168,7 +177,7 @@
   <section class="reveal">
     <p class="section-label">03 // System</p>
     <h2 class="section-title">Project Status</h2>
-    <div class="status-grid" style="grid-template-columns:repeat(4,1fr);">
+    <div class="status-grid">
       <div class="status-card">
         <div class="sc-top"><span class="sc-name">Password Analyzer</span><span class="sc-dot scd-live"></span></div>
         <span class="sc-badge scb-live">Live</span>
@@ -215,5 +224,6 @@
     const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');}),{threshold:.1});
     document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
   </script>
+  <script src="js/script.js"></script>
 </body>
 </html>

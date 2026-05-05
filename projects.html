@@ -39,6 +39,7 @@
 <body>
   <nav>
     <a href="index.html" class="nav-logo">DM</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
     <ul class="nav-links">
       <li><a href="projects.html" class="active">Projects</a></li>
       <li><a href="resume.html">Resume</a></li>
@@ -171,5 +172,6 @@
     const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');}),{threshold:.1});
     document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
   </script>
+  <script src="js/script.js"></script>
 </body>
 </html>

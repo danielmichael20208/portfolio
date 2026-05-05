@@ -151,12 +151,17 @@
       .siem-controls { gap: 1rem; }
       .last-updated-wrap { margin-left: 0; width: 100%; }
     }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .export-row { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
 
   <nav>
     <a href="index.html" class="nav-logo">DM</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
     <ul class="nav-links">
       <li><a href="projects.html">Projects</a></li>
       <li><a href="resume.html">Resume</a></li>
@@ -268,6 +273,7 @@
   </footer>
 
   <script src="js/siem.js"></script>
+  <script src="js/script.js"></script>
   <script>
     const obs = new IntersectionObserver(e => e.forEach(x => { if (x.isIntersecting) x.target.classList.add('visible'); }), { threshold: .05 });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));

@@ -60,9 +60,38 @@ footer { border-top:1px solid rgba(201,168,76,.1); padding:2.5rem 4rem; display:
 .reveal { opacity:0; transform:translateY(30px); transition:opacity .7s ease,transform .7s ease; }
 .reveal.visible { opacity:1; transform:translateY(0); }
 
+/* Hamburger button — hidden on desktop */
+.nav-toggle { display:none; flex-direction:column; justify-content:center; gap:5px; background:none; border:none; cursor:pointer; padding:4px; z-index:101; flex-shrink:0; }
+.nav-toggle span { display:block; width:22px; height:2px; background:var(--gold); transition:transform .3s,opacity .3s; }
+
 @media (max-width:768px) {
-  nav { padding:1rem 1.5rem; } .nav-links { gap:1.2rem; }
-  .page-hero { padding:7rem 1.5rem 3rem; } .page-content { padding:3rem 1.5rem; }
-  section { padding:5rem 1.5rem; }
-  footer { flex-direction:column; gap:1.5rem; text-align:center; }
+  nav { padding:1rem 1.5rem; }
+  .nav-toggle { display:flex; }
+  .nav-links {
+    display:none; position:fixed; top:56px; left:0; right:0;
+    flex-direction:column; gap:0; list-style:none;
+    background:rgba(10,10,12,.97); backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(201,168,76,.15); z-index:99; padding:.5rem 0;
+  }
+  .nav-links.open { display:flex; }
+  .nav-links li { border-bottom:1px solid rgba(201,168,76,.05); }
+  .nav-links li:last-child { border-bottom:none; }
+  .nav-links a { display:block; padding:.9rem 1.5rem; font-size:.8rem; letter-spacing:.1em; }
+  .nav-links a::after { display:none; }
+  .nav-toggle.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity:0; }
+  .nav-toggle.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+  .page-hero { padding:7rem 1.5rem 3rem; }
+  .page-content { padding:3rem 1.5rem; }
+  section { padding:4rem 1.5rem; }
+  footer { flex-direction:column; gap:1.5rem; text-align:center; padding:2rem 1.5rem; }
+  .footer-links { flex-wrap:wrap; justify-content:center; }
+}
+
+@media (max-width:480px) {
+  .page-title { font-size:clamp(1.8rem,7vw,2.8rem); }
+  .page-hero { padding:6rem 1rem 2.5rem; }
+  .page-content { padding:2rem 1rem; }
+  section { padding:3rem 1rem; }
+  .section-title { margin-bottom:1.5rem; }
 }

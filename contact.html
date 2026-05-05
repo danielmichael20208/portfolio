@@ -9,7 +9,7 @@
     .contact-layout { display:grid; grid-template-columns:1fr 360px; gap:3.5rem; align-items:start; }
     .field-group { display:flex; flex-direction:column; gap:.45rem; margin-bottom:1.1rem; }
     .field-label { font-family:var(--font-mono); font-size:.63rem; letter-spacing:.2em; color:var(--gold-dim); text-transform:uppercase; }
-    .field-input,.field-textarea { background:var(--obsidian-2); border:1px solid rgba(201,168,76,.15); color:var(--white); font-family:var(--font-body); font-size:.9rem; font-weight:300; padding:.85rem 1rem; outline:none; transition:border-color .25s; width:100%; }
+    .field-input,.field-textarea { background:var(--obsidian-2); border:1px solid rgba(201,168,76,.15); color:var(--white); font-family:var(--font-body); font-size:1rem; font-weight:300; padding:.85rem 1rem; outline:none; transition:border-color .25s; width:100%; }
     .field-input::placeholder,.field-textarea::placeholder { color:#4a4840; }
     .field-input:focus,.field-textarea:focus { border-color:rgba(201,168,76,.5); }
     .field-textarea { resize:vertical; min-height:150px; }
@@ -45,12 +45,13 @@
     .open-to li { list-style:none; padding:.18rem 0; }
     .open-to li::before { content:'→ '; color:var(--gold-dim); }
 
-    @media (max-width:900px) { .contact-layout { grid-template-columns:1fr; } .form-row { grid-template-columns:1fr; } }
+    @media (max-width:768px) { .contact-layout { grid-template-columns:1fr; } .form-row { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
   <nav>
     <a href="index.html" class="nav-logo">DM</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
     <ul class="nav-links">
       <li><a href="projects.html">Projects</a></li>
       <li><a href="resume.html">Resume</a></li>
@@ -160,5 +161,6 @@
       }catch{status.textContent='[ERR] Send failed. Email me directly: Daniel.Michael20208@gmail.com';status.className='error';status.style.display='block';}
     });
   </script>
+  <script src="js/script.js"></script>
 </body>
 </html>
