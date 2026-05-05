@@ -24,13 +24,21 @@
     #t-out::-webkit-scrollbar { width:3px; }
     #t-out::-webkit-scrollbar-thumb { background:var(--gold-dim); }
     .tl { display:block; white-space:pre-wrap; word-break:break-word; }
-    .tp { color:var(--gold); } .ts { color:var(--green); } .te { color:#dc6060; } .ti { color:var(--muted); } .tg { color:var(--gold); } .td { color:#4a4840; }
+    .tp  { color:var(--gold); }
+    .ts  { color:var(--green); }
+    .te  { color:#dc6060; }
+    .ti  { color:var(--muted); }
+    .tg  { color:var(--gold); }
+    .td  { color:#4a4840; }
+    .tpy { color:#7ec8e3; }
     .t-input-row { display:flex; align-items:center; padding:.7rem 2rem; border-top:1px solid rgba(201,168,76,.08); background:#050608; flex-shrink:0; }
     .t-in-prompt { font-family:var(--font-mono); font-size:.8rem; color:var(--gold); white-space:nowrap; margin-right:.5rem; }
     #cmd { flex:1; background:transparent; border:none; outline:none; font-family:var(--font-mono); font-size:.8rem; color:var(--white); caret-color:var(--gold); }
     .quickcmds { padding:.7rem 4rem; max-width:1100px; margin:0 auto; width:100%; display:flex; gap:.5rem; flex-wrap:wrap; }
     .qcmd { font-family:var(--font-mono); font-size:.63rem; letter-spacing:.1em; padding:.28rem .75rem; border:1px solid rgba(201,168,76,.2); color:var(--gold-dim); background:transparent; cursor:pointer; transition:all .2s; }
     .qcmd:hover { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.05); }
+    .qcmd-py { border-color:rgba(126,200,227,.25); color:#5a9aab; }
+    .qcmd-py:hover { border-color:#7ec8e3; color:#7ec8e3; background:rgba(126,200,227,.05); }
     @media (max-width:768px) {
       .t-header,.t-wrap,.quickcmds { padding-left:1rem; padding-right:1rem; }
       #t-out,.t-input-row { padding-left:.75rem; padding-right:.75rem; }
@@ -65,7 +73,7 @@
       <div class="t-window">
         <div class="t-titlebar">
           <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
-          <span class="t-bar-title">daniel@portfolio ~ bash</span>
+          <span class="t-bar-title">daniel@portfolio ~ python3 · bash</span>
           <span class="t-bar-status">● connected</span>
         </div>
         <div id="t-out"></div>
@@ -84,45 +92,203 @@
       <button class="qcmd" onclick="run('contact')">contact</button>
       <button class="qcmd" onclick="run('status')">status</button>
       <button class="qcmd" onclick="run('clear')">clear</button>
+      <button class="qcmd qcmd-py" onclick="run('run password_analyzer.py')">run password_analyzer.py</button>
+      <button class="qcmd qcmd-py" onclick="run('run port_scanner.py')">run port_scanner.py</button>
+      <button class="qcmd qcmd-py" onclick="run('python')">python</button>
     </div>
   </div>
 
   <script>
-    const out=document.getElementById('t-out');
-    const inp=document.getElementById('cmd');
-    const hist=[];let hi=-1;
+    const out = document.getElementById('t-out');
+    const inp = document.getElementById('cmd');
+    const hist = []; let hi = -1;
 
-    const boot=[
+    // ── Pyodide / execution state ─────────────────────────────────────────
+    let pyodide = null, pyReady = false, pyLoading = false;
+    let termMode = 'SHELL'; // SHELL | REPL | RUNNING | WAITING
+    let inputResolve = null;
+    const promptEl = document.querySelector('.t-in-prompt');
+
+    // ── Demo: Password Analyzer ───────────────────────────────────────────
+    const DEMO_PASSWORD_ANALYZER = `
+import math, re, hashlib, random
+
+COMMON = {"123456","password","qwerty","abc123","letmein","111111","dragon",
+          "iloveyou","admin","welcome","monkey","login","football","starwars"}
+
+def entropy(pw):
+    c = 0
+    if re.search(r"[a-z]", pw): c += 26
+    if re.search(r"[A-Z]", pw): c += 26
+    if re.search(r"[0-9]", pw): c += 10
+    if re.search(r"[^A-Za-z0-9]", pw): c += 33
+    return len(pw) * math.log2(c) if c else 0.0
+
+def fmt_time(s):
+    if s == float("inf") or s <= 0: return "instant"
+    if s < 60:      return f"{s:.1f} sec"
+    if s < 3600:    return f"{s/60:.1f} min"
+    if s < 86400:   return f"{s/3600:.1f} hrs"
+    if s < 31536000:return f"{s/86400:.1f} days"
+    return f"{s/31536000:.1f} yrs"
+
+def rating(pw):
+    s = sum([len(pw)>=12,
+             bool(re.search(r"[a-z]",pw) and re.search(r"[A-Z]",pw)),
+             bool(re.search(r"[0-9]",pw)),
+             bool(re.search(r"[^A-Za-z0-9]",pw)),
+             pw.lower() not in COMMON])
+    return ["VERY WEAK","VERY WEAK","WEAK","FAIR","GOOD","STRONG"][s]
+
+async def check_hibp(pw):
+    import js
+    h = hashlib.sha1(pw.encode()).hexdigest().upper()
+    try:
+        r = await js.fetch("https://api.pwnedpasswords.com/range/" + h[:5])
+        txt = await r.text()
+        for line in txt.splitlines():
+            if ":" in line:
+                suf, cnt = line.split(":", 1)
+                if suf.strip() == h[5:]:
+                    return int(cnt)
+        return 0
+    except:
+        return None
+
+async def main():
+    print("=== Password Strength Analyzer ===")
+    print("    Browser edition  |  Live HIBP breach check")
+    print("")
+    pw = await _async_input("Enter password to analyze: ")
+    pw = pw.strip()
+    if not pw:
+        print("No password entered.")
+        return
+    e   = entropy(pw)
+    r   = rating(pw)
+    com = pw.lower() in COMMON
+    gpu = (2**(e-1))/1e10 if e else 0
+    web = (2**(e-1))/100  if e else 0
+    print("")
+    print(f"  Entropy      : {e:.1f} bits")
+    print(f"  Rating       : {r}")
+    print(f"  Common pass? : {'YES' if com else 'no'}")
+    print(f"  GPU crack    : {fmt_time(gpu)}")
+    print(f"  Web crack    : {fmt_time(web)}")
+    print("  Breach check : querying HIBP...")
+    pwned = await check_hibp(pw)
+    if pwned is None:
+        print("  Breach check : (API unavailable)")
+    elif pwned == 0:
+        print("  Breach check : Not found in known breach dumps")
+    else:
+        print(f"  Breach check : FOUND in {pwned:,} breach records!")
+    print("")
+    print("=== Suggestions ===")
+    tips = []
+    if len(pw) < 12:               tips.append("12+ characters (biggest single factor).")
+    if not re.search(r"[A-Z]",pw): tips.append("Add uppercase letters.")
+    if not re.search(r"[a-z]",pw): tips.append("Add lowercase letters.")
+    if not re.search(r"[0-9]",pw): tips.append("Include digits 0-9.")
+    if not re.search(r"[^A-Za-z0-9]",pw): tips.append("Add symbols like !@#$%^&*")
+    if com:               tips.append("Avoid common passwords — cracked instantly.")
+    if pwned not in (None,0): tips.append("Breached password — retire it everywhere.")
+    if r in ("VERY WEAK","WEAK"): tips.append('Passphrase idea: "Solar!Giraffe42_Network"')
+    if not tips:
+        print("  No issues found — strong password!")
+    else:
+        for t in tips: print(f"  - {t}")
+    W = ["Solar","Neon","Orbit","Cipher","Vector","Photon","Lunar","Nexus"]
+    print("")
+    print(f"  Suggestion: {random.choice(W)}!{random.choice(W)}{random.randint(10,99)}")
+
+await main()
+`;
+
+    // ── Demo: Port Scanner ────────────────────────────────────────────────
+    const DEMO_PORT_SCANNER = `
+import asyncio
+
+PORTS = [22, 80, 443, 139, 445, 3389, 8080, 8443]
+DATA  = {
+    22:   ("OPEN",    "SSH",      "OpenSSH 8.9p1 Ubuntu"),
+    80:   ("OPEN",    "HTTP",     "nginx/1.24.0"),
+    443:  ("OPEN",    "HTTPS",    "TLS 1.3"),
+    139:  ("CLOSED",  "NetBIOS",  None),
+    445:  ("CLOSED",  "SMB",      None),
+    3389: ("FILTERED","RDP",      None),
+    8080: ("CLOSED",  "HTTP-alt", None),
+    8443: ("CLOSED",  "HTTPS-alt",None),
+}
+
+async def main():
+    print("=== Python Port Scanner ===")
+    print("")
+    print("  [DEMO] Browser security blocks raw TCP sockets.")
+    print("  Showing a representative scan of a demo Linux host.")
+    print("  Full scanner: github.com/danielmichael20208/port-scanner")
+    print("")
+    t = await _async_input("Enter target (Enter for demo host): ")
+    t = t.strip() or "demo-linux.local"
+    print("")
+    print(f"  Scanning {t}...")
+    print(f"  Ports: {', '.join(str(p) for p in PORTS)}")
+    print("")
+    print(f"  {'PORT':<14}{'STATE':<11}{'SERVICE':<13}BANNER")
+    print("  " + "-" * 54)
+    for p in PORTS:
+        state, svc, banner = DATA[p]
+        b = '"' + banner + '"' if banner else ""
+        await asyncio.sleep(0.2)
+        print(f"  {str(p)+'/tcp':<14}{state:<11}{svc:<13}{b}")
+    print("")
+    print("  Scan complete  |  3 open  |  OS guess: Linux/Unix")
+    print("  Run locally for real TCP scanning:")
+    print("  $ git clone https://github.com/danielmichael20208/port-scanner")
+    print("  $ python port_scanner.py")
+
+await main()
+`;
+
+    // ── Boot sequence ─────────────────────────────────────────────────────
+    const boot = [
       {c:'td',t:'──────────────────────────────────────────────────'},
-      {c:'tg',t:'   DANIEL MICHAEL // PORTFOLIO TERMINAL v2.0'},
+      {c:'tg',t:'   DANIEL MICHAEL // PORTFOLIO TERMINAL v3.0'},
       {c:'td',t:'──────────────────────────────────────────────────'},
       {c:'ti',t:'   Cristo Rey Atlanta Jesuit · Class of 2028'},
       {c:'td',t:''},
       {c:'ts',t:'   [OK] Session started'},
       {c:'ts',t:'   [OK] Projects: 3 active'},
-      {c:'ts',t:'   [OK] Labs: 8 tracked'},
+      {c:'ts',t:'   [OK] Python runtime: initializing...'},
       {c:'td',t:''},
       {c:'ti',t:"   Type 'help' to see available commands."},
       {c:'td',t:'──────────────────────────────────────────────────'},
       {c:'',  t:''},
     ];
 
-    const CMDS={
-      help:()=>[
-        {c:'tg',t:'Commands:'},
-        {c:'td',t:''},
-        {c:'tg',t:'  about      →  About me'},
-        {c:'tg',t:'  skills     →  Technical skills'},
-        {c:'tg',t:'  projects   →  My projects'},
-        {c:'tg',t:'  labs       →  Cyber labs & training'},
-        {c:'tg',t:'  certs      →  Certification pipeline'},
-        {c:'tg',t:'  contact    →  Contact info'},
-        {c:'tg',t:'  status     →  Project status'},
-        {c:'tg',t:'  ls         →  List site sections'},
-        {c:'tg',t:'  clear      →  Clear terminal'},
-        {c:'td',t:''},
+    // ── Commands ──────────────────────────────────────────────────────────
+    const CMDS = {
+      help: () => [
+        {c:'tg', t:'Shell Commands:'},
+        {c:'td', t:''},
+        {c:'tg', t:'  about      →  About me'},
+        {c:'tg', t:'  skills     →  Technical skills'},
+        {c:'tg', t:'  projects   →  My projects'},
+        {c:'tg', t:'  labs       →  Cyber labs & training'},
+        {c:'tg', t:'  certs      →  Certification pipeline'},
+        {c:'tg', t:'  contact    →  Contact info'},
+        {c:'tg', t:'  status     →  Project status'},
+        {c:'tg', t:'  ls         →  List files & sections'},
+        {c:'tg', t:'  clear      →  Clear terminal'},
+        {c:'td', t:''},
+        {c:'tpy',t:'Python Runtime (Pyodide / CPython 3.12):'},
+        {c:'td', t:''},
+        {c:'tpy',t:'  python                    →  Interactive Python REPL'},
+        {c:'tpy',t:'  run password_analyzer.py  →  Analyze a password (live HIBP)'},
+        {c:'tpy',t:'  run port_scanner.py       →  Port scanner demo'},
+        {c:'td', t:''},
       ],
-      about:()=>[
+      about: () => [
         {c:'tg',t:'About:'},
         {c:'td',t:''},
         {c:'',t:'  Name     :  Daniel Michael'},
@@ -134,7 +300,7 @@
         {c:'',t:'  Plans    :  Pursuing CS & Cybersecurity in college'},
         {c:'td',t:''},
       ],
-      skills:()=>[
+      skills: () => [
         {c:'tg',t:'Skills:'},
         {c:'td',t:''},
         {c:'',t:'  Languages   │  Python · Java · Bash'},
@@ -145,7 +311,7 @@
         {c:'',t:'  Tools       │  Git · GitHub Pages · VS Code'},
         {c:'td',t:''},
       ],
-      projects:()=>[
+      projects: () => [
         {c:'tg',t:'Projects:'},
         {c:'td',t:''},
         {c:'ts',t:'  [LIVE]    password-strength-analyzer'},
@@ -158,7 +324,7 @@
         {c:'ti',t:'             Physical access control · PIN auth · servo lock'},
         {c:'td',t:''},
       ],
-      labs:()=>[
+      labs: () => [
         {c:'tg',t:'Labs:'},
         {c:'td',t:''},
         {c:'ts',t:'  [DONE]    Wireshark Traffic Analysis'},
@@ -171,7 +337,7 @@
         {c:'ts',t:'  [LIVE]    Security SIEM Dashboard'},
         {c:'td',t:''},
       ],
-      certs:()=>[
+      certs: () => [
         {c:'tg',t:'Certification Pipeline:'},
         {c:'td',t:''},
         {c:'tg',t:'  Stage 1 — Foundation  [In Progress]'},
@@ -186,7 +352,7 @@
         {c:'ti',t:'    OSCP · eWPT · GSEC (SANS)'},
         {c:'td',t:''},
       ],
-      contact:()=>[
+      contact: () => [
         {c:'tg',t:'Contact:'},
         {c:'td',t:''},
         {c:'',t:'  Email   :  Daniel.Michael20208@gmail.com'},
@@ -194,7 +360,7 @@
         {c:'ti',t:'  Response: 24–48 hours'},
         {c:'td',t:''},
       ],
-      status:()=>[
+      status: () => [
         {c:'tg',t:'Project Status:'},
         {c:'td',t:''},
         {c:'ts',t:'  [LIVE]    password-strength-analyzer'},
@@ -202,43 +368,297 @@
         {c:'',t:'  [PROTO]   arduino-cyberdoor-v1'},
         {c:'td',t:''},
       ],
-      ls:()=>[
-        {c:'tg',t:'Site Sections:'},
-        {c:'td',t:''},
-        {c:'',t:'  index.html      Home'},
-        {c:'',t:'  projects.html   Projects'},
-        {c:'',t:'  resume.html     Resume'},
-        {c:'',t:'  labs.html       Cyber Labs'},
-        {c:'',t:'  terminal.html   This terminal'},
-        {c:'',t:'  contact.html    Contact'},
-        {c:'td',t:''},
+      ls: () => [
+        {c:'tg', t:'Site Sections:'},
+        {c:'td', t:''},
+        {c:'',   t:'  index.html      Home'},
+        {c:'',   t:'  projects.html   Projects'},
+        {c:'',   t:'  resume.html     Resume'},
+        {c:'',   t:'  labs.html       Cyber Labs'},
+        {c:'',   t:'  terminal.html   This terminal'},
+        {c:'',   t:'  contact.html    Contact'},
+        {c:'td', t:''},
+        {c:'tpy',t:'Runnable Python demos:'},
+        {c:'td', t:''},
+        {c:'tpy',t:'  password_analyzer.py   →  run password_analyzer.py'},
+        {c:'tpy',t:'  port_scanner.py        →  run port_scanner.py  [demo mode]'},
+        {c:'td', t:''},
       ],
-      clear:()=>{ out.innerHTML=''; return []; },
+      clear: () => { out.innerHTML = ''; return []; },
     };
 
-    function print(line){const s=document.createElement('span');s.className='tl '+(line.c||'');s.textContent=line.t;out.appendChild(s);}
-    function printAll(lines){if(lines&&lines.length)lines.forEach(l=>print(l));out.scrollTop=out.scrollHeight;}
-    function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    // ── Core output functions ─────────────────────────────────────────────
+    function print(line) {
+      const s = document.createElement('span');
+      s.className = 'tl ' + (line.c || '');
+      s.textContent = line.t;
+      out.appendChild(s);
+    }
+    function printAll(lines) {
+      if (lines && lines.length) lines.forEach(l => print(l));
+      out.scrollTop = out.scrollHeight;
+    }
+    function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    function run(cmd){
-      cmd=cmd.trim().toLowerCase();if(!cmd)return;
-      const echo=document.createElement('span');echo.className='tl';
-      echo.innerHTML=`<span class="tp">daniel@portfolio:~$ </span>${esc(cmd)}`;
-      out.appendChild(echo);
-      if(cmd in CMDS){const r=CMDS[cmd]();if(r&&r.length)printAll(r);}
-      else{printAll([{c:'te',t:`bash: ${cmd}: command not found`},{c:'ti',t:"Type 'help' for commands."},{c:'td',t:''}]);}
-      out.scrollTop=out.scrollHeight;
+    function restorePrompt() {
+      if (termMode === 'REPL') {
+        promptEl.textContent = '>>> ';
+        promptEl.style.color = '#7ec8e3';
+      } else {
+        promptEl.textContent = 'daniel@portfolio:~$ ';
+        promptEl.style.color = '';
+      }
     }
 
-    let i=0;function bootNext(){if(i<boot.length){print(boot[i++]);out.scrollTop=out.scrollHeight;setTimeout(bootNext,50);}}
-    bootNext();
+    // ── Pyodide initialiser ───────────────────────────────────────────────
+    async function initPyodide() {
+      if (pyLoading || pyReady) return;
+      pyLoading = true;
+      printAll([
+        {c:'td', t:''},
+        {c:'ti', t:'  [INIT] Loading Python 3.12 runtime (Pyodide)...'},
+        {c:'ti', t:'  [INFO] First load ~8 MB — cached on repeat visits.'},
+        {c:'td', t:''},
+      ]);
+      try {
+        if (typeof loadPyodide === 'undefined') {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js';
+            s.onload = resolve;
+            s.onerror = () => reject(new Error('Failed to reach Pyodide CDN'));
+            document.head.appendChild(s);
+          });
+        }
+        pyodide = await loadPyodide({
+          stdout: text => {
+            text.split('\n').forEach(l => { print({c:'', t:'  ' + l}); });
+            out.scrollTop = out.scrollHeight;
+          },
+          stderr: text => {
+            text.split('\n').forEach(l => { if (l) print({c:'te', t:'  ' + l}); });
+            out.scrollTop = out.scrollHeight;
+          },
+        });
+        // Register the async input bridge as a Python-callable global
+        pyodide.globals.set('_async_input', async (prompt) => {
+          return await waitForInput(String(prompt || ''));
+        });
+        pyReady = true;
+        pyLoading = false;
+        printAll([
+          {c:'ts', t:'  [OK] Python 3.12 ready  |  stdlib · asyncio · js bridge'},
+          {c:'tpy',t:"  'python' for REPL  |  'run password_analyzer.py'  |  'run port_scanner.py'"},
+          {c:'td', t:''},
+        ]);
+      } catch (err) {
+        pyLoading = false;
+        printAll([
+          {c:'te', t:'  [ERROR] Could not load Python runtime.'},
+          {c:'ti', t:'  ' + (err.message || String(err))},
+          {c:'td', t:''},
+        ]);
+      }
+    }
 
-    inp.addEventListener('keydown',e=>{
-      if(e.key==='Enter'){const v=inp.value;hist.unshift(v);hi=-1;inp.value='';run(v);}
-      else if(e.key==='ArrowUp'){e.preventDefault();if(hi<hist.length-1){hi++;inp.value=hist[hi];}}
-      else if(e.key==='ArrowDown'){e.preventDefault();if(hi>0){hi--;inp.value=hist[hi];}else{hi=-1;inp.value='';}}
+    // ── input() async bridge ──────────────────────────────────────────────
+    // Called from Python via: pw = await _async_input("Enter password: ")
+    // Suspends Python until the user presses Enter in the terminal.
+    function waitForInput(prompt) {
+      return new Promise((resolve) => {
+        if (prompt) print({c:'tpy', t:'  ' + prompt});
+        termMode = 'WAITING';
+        inputResolve = resolve;
+        promptEl.textContent = '  input: ';
+        promptEl.style.color = '#7ec8e3';
+        inp.value = '';
+        inp.focus();
+        out.scrollTop = out.scrollHeight;
+      });
+    }
+
+    // ── Program launchers ─────────────────────────────────────────────────
+    async function launchPasswordAnalyzer() {
+      if (!pyReady) {
+        if (!pyLoading) initPyodide();
+        printAll([{c:'ti',t:'  [WAIT] Runtime loading — try again in ~10s.'},{c:'td',t:''}]);
+        return;
+      }
+      termMode = 'RUNNING';
+      printAll([{c:'tpy',t:'  ── password_analyzer.py (browser edition) ──'},{c:'td',t:''}]);
+      try {
+        await pyodide.runPythonAsync(DEMO_PASSWORD_ANALYZER);
+      } catch (err) {
+        const msg = (err.message || String(err));
+        msg.split('\n').forEach(l => { if (l.trim()) print({c:'te', t:'  ' + l}); });
+      }
+      termMode = 'SHELL';
+      restorePrompt();
+      print({c:'td', t:''});
+      out.scrollTop = out.scrollHeight;
+    }
+
+    async function launchPortScanner() {
+      if (!pyReady) {
+        if (!pyLoading) initPyodide();
+        printAll([{c:'ti',t:'  [WAIT] Runtime loading — try again in ~10s.'},{c:'td',t:''}]);
+        return;
+      }
+      termMode = 'RUNNING';
+      printAll([{c:'tpy',t:'  ── port_scanner.py (demo mode) ──'},{c:'td',t:''}]);
+      try {
+        await pyodide.runPythonAsync(DEMO_PORT_SCANNER);
+      } catch (err) {
+        const msg = (err.message || String(err));
+        msg.split('\n').forEach(l => { if (l.trim()) print({c:'te', t:'  ' + l}); });
+      }
+      termMode = 'SHELL';
+      restorePrompt();
+      print({c:'td', t:''});
+      out.scrollTop = out.scrollHeight;
+    }
+
+    // ── Python REPL ───────────────────────────────────────────────────────
+    async function runRepl(line) {
+      if (!line.trim()) { out.scrollTop = out.scrollHeight; return; }
+      const echo = document.createElement('span');
+      echo.className = 'tl';
+      echo.innerHTML = '<span class="tpy">&gt;&gt;&gt; </span>' + esc(line);
+      out.appendChild(echo);
+      const lower = line.trim().toLowerCase();
+      if (lower === 'exit' || lower === 'exit()' || lower === 'quit()') {
+        termMode = 'SHELL';
+        restorePrompt();
+        printAll([{c:'ti',t:'  Exited Python REPL.'},{c:'td',t:''}]);
+        return;
+      }
+      termMode = 'RUNNING';
+      try {
+        await pyodide.runPythonAsync(line);
+      } catch (err) {
+        const msg = (err.message || String(err));
+        msg.split('\n').forEach(l => { if (l.trim()) print({c:'te', t:'  ' + l}); });
+      }
+      termMode = 'REPL';
+      out.scrollTop = out.scrollHeight;
+    }
+
+    // ── Main command dispatcher ───────────────────────────────────────────
+    function run(cmd) {
+      cmd = cmd.trim();
+      if (!cmd) return;
+
+      if (termMode === 'WAITING') {
+        print({c:'ti', t:'  [INPUT] Waiting for your input — press Enter to submit.'});
+        out.scrollTop = out.scrollHeight;
+        return;
+      }
+      if (termMode === 'RUNNING') {
+        print({c:'ti', t:'  [BUSY] Python is executing...'});
+        out.scrollTop = out.scrollHeight;
+        return;
+      }
+
+      const lower = cmd.toLowerCase();
+      const echo = document.createElement('span');
+      echo.className = 'tl';
+      echo.innerHTML = '<span class="tp">daniel@portfolio:~$ </span>' + esc(cmd);
+      out.appendChild(echo);
+
+      if (lower === 'python' || lower === 'python3') {
+        if (!pyReady && !pyLoading) initPyodide();
+        termMode = 'REPL';
+        promptEl.textContent = '>>> ';
+        promptEl.style.color = '#7ec8e3';
+        printAll([
+          {c:'tpy',t:'  Python 3.12 (Pyodide) — type exit() to return to shell'},
+          {c:'tpy',t:'  Single-line statements only. Use run commands for full programs.'},
+          {c:'td', t:''},
+        ]);
+        if (!pyReady) print({c:'ti', t:'  [WAIT] Runtime still loading...'});
+        return;
+      }
+
+      if (lower.startsWith('run ')) {
+        const file = lower.slice(4).trim();
+        if (file === 'password_analyzer.py') { launchPasswordAnalyzer(); return; }
+        if (file === 'port_scanner.py')      { launchPortScanner();      return; }
+        printAll([
+          {c:'te', t:'  bash: ' + esc(file) + ': no such demo file'},
+          {c:'tpy',t:'  Available: password_analyzer.py  port_scanner.py'},
+          {c:'td', t:''},
+        ]);
+        return;
+      }
+
+      if (lower in CMDS) {
+        const r = CMDS[lower]();
+        if (r && r.length) printAll(r);
+      } else {
+        printAll([
+          {c:'te', t:'bash: ' + esc(cmd) + ': command not found'},
+          {c:'ti', t:"Type 'help' for commands."},
+          {c:'td', t:''},
+        ]);
+      }
+      out.scrollTop = out.scrollHeight;
+    }
+
+    // ── Boot ──────────────────────────────────────────────────────────────
+    let i = 0;
+    function bootNext() {
+      if (i < boot.length) { print(boot[i++]); out.scrollTop = out.scrollHeight; setTimeout(bootNext, 50); }
+    }
+    bootNext();
+    setTimeout(initPyodide, 800);
+
+    // ── Keyboard input ────────────────────────────────────────────────────
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const v = inp.value;
+
+        // Resolve a pending Python input() call
+        if (termMode === 'WAITING' && inputResolve) {
+          inp.value = '';
+          print({c:'tpy', t:'  input: ' + v});
+          const res = inputResolve;
+          inputResolve = null;
+          termMode = 'RUNNING';
+          restorePrompt();
+          res(v);
+          return;
+        }
+
+        // Block while Python executes
+        if (termMode === 'RUNNING') {
+          inp.value = '';
+          print({c:'ti', t:'  [BUSY] Python is executing...'});
+          out.scrollTop = out.scrollHeight;
+          return;
+        }
+
+        // REPL mode
+        if (termMode === 'REPL') {
+          hist.unshift(v); hi = -1; inp.value = '';
+          runRepl(v);
+          return;
+        }
+
+        // SHELL mode
+        hist.unshift(v); hi = -1; inp.value = '';
+        run(v);
+      }
+      else if (e.key === 'ArrowUp' && termMode !== 'WAITING') {
+        e.preventDefault();
+        if (hi < hist.length - 1) { hi++; inp.value = hist[hi]; }
+      }
+      else if (e.key === 'ArrowDown' && termMode !== 'WAITING') {
+        e.preventDefault();
+        if (hi > 0) { hi--; inp.value = hist[hi]; } else { hi = -1; inp.value = ''; }
+      }
     });
-    document.querySelector('.t-window').addEventListener('click',()=>inp.focus());
+
+    document.querySelector('.t-window').addEventListener('click', () => inp.focus());
   </script>
   <script src="js/script.js"></script>
 </body>
